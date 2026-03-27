@@ -5,6 +5,15 @@ import { env } from "./env.mjs"
 
 const config: NextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.nookazon.com",
+        pathname: "/**",
+      },
+    ],
+  },
   logging: {
     fetches: {
       fullUrl: true,

@@ -1,16 +1,49 @@
 @import 'tailwindcss';
 
-/* Import Newsreader from Google Fonts (recommended). If offline, fall back to serif. */
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600;700&display=swap');
+/* ─────────────────────────────────────────────────────────
+   OBSIDIAN VAULT – Design Token CSS
+   "The Ancient Manuscript" design system
+   stitch/obsidian_vault/DESIGN.md
+   ───────────────────────────────────────────────────────── */
 
-/* Design tokens from stitch/obsidian_vault/DESIGN.md */
 :root {
-  --surface: #131313;
-  --primary: #ffb4a8;
-  --secondary: #f7bd48;
-  --on-surface-variant: #c4c7c7;
-  --surface-container-lowest: #0e0e0e;
+  /* Surface hierarchy (tonal layering — no dividers) */
+  --surface:                   #131313;
+  --surface-dim:               #131313;
+  --surface-bright:            #393939;
+  --surface-container-lowest:  #0e0e0e;
+  --surface-container-low:     #1c1b1b;
+  --surface-container:         #201f1f;
+  --surface-container-high:    #2a2a2a;
   --surface-container-highest: #353534;
+  --surface-variant:           #353534;
+
+  /* Background */
+  --background:      #131313;
+  --on-background:   #e5e2e1;
+  --on-surface:      #e5e2e1;
+  --on-surface-variant: #c4c7c7;
+
+  /* Blood & Gold — the only accent colors allowed */
+  --primary:                   #ffb4a8;
+  --primary-container:         #310000;
+  --on-primary:                #690000;
+  --on-primary-container:      #e24634;   /* blood orange */
+  --on-primary-fixed-variant:  #920603;   /* deep blood */
+
+  --secondary:           #f7bd48;         /* weathered gold */
+  --secondary-container: #bb880f;
+  --on-secondary:        #412d00;
+  --on-secondary-container: #392600;
+
+  /* Error / danger */
+  --error:           #ffb4ab;
+  --error-container: #93000a;
+  --on-error:        #690005;
+
+  /* Outlines (ghost border fallback, felt not seen) */
+  --outline:         #8e9192;
+  --outline-variant: #444748;
 }
 
 html, body {
@@ -21,38 +54,135 @@ html, body {
   html, body {
     background-color: var(--surface);
     color: var(--on-surface-variant);
-    font-family: Newsreader, serif;
+    font-family: var(--font-newsreader), 'Newsreader', serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
   }
 
-  /* Enforce hard edges across the app per design rules */
+  /* ── Hard-edge enforcement: The Vault is cut stone, not molded plastic ── */
   *, ::before, ::after {
     border-radius: 0 !important;
     box-sizing: border-box;
   }
 
-  /* Compatibility: keep default border-color behavior */
-  *, ::after, ::before, ::backdrop, ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-
-  /* Subtle grain overlay to add tactile feel (low opacity) */
+  /* ── Grain / noise overlay: obsidian mineral texture, 2-3% opacity ── */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background-image: radial-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
-    background-size: 3px 3px;
-    opacity: 0.03;
+    /* SVG-based noise — no external resource request */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+    opacity: 0.025;
     z-index: 9999;
     mix-blend-mode: overlay;
   }
+
+  /* ── Selection color: use gold per design ── */
+  ::selection {
+    background-color: rgba(247, 189, 72, 0.25);
+    color: #f7bd48;
+  }
 }
 
-/* Utility for obsidian container surfaces */
-.surface-container-lowest { background-color: var(--surface-container-lowest); }
-.surface-container-highest { background-color: var(--surface-container-highest); }
+/* ─── Fluid typography — 4px baseline grid, clamp() for all breakpoints ───
+   Mobile (375px) → Desktop (1280px)
+   ─────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Display: Hero headlines */
+  .text-display-xl {
+    font-size: clamp(3rem, 8vw + 0.5rem, 8rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    font-style: italic;
+  }
+  .text-display-lg {
+    font-size: clamp(2.5rem, 6vw + 0.5rem, 6rem);
+    line-height: 0.94;
+    letter-spacing: -0.02em;
+  }
+  .text-display-md {
+    font-size: clamp(2rem, 4vw + 0.5rem, 4.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+  }
+
+  /* Section headlines */
+  .text-headline-lg {
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+  .text-headline-md {
+    font-size: clamp(1.25rem, 2vw + 0.5rem, 2rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+
+  /* Body + captions */
+  .text-body-lg {
+    font-size: clamp(1rem, 1.25vw, 1.25rem);
+    line-height: 1.6;
+  }
+  .text-label-sm {
+    font-size: 0.625rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+  .text-label-md {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  /* ── "Gold gradient" — primary CTA sigil ── */
+  .blood-gradient {
+    background: linear-gradient(180deg, #f7bd48 0%, #bb880f 100%);
+  }
+  .blood-gradient-h {
+    background: linear-gradient(135deg, #f7bd48 0%, #bb880f 100%);
+  }
+
+  /* ── Inset socket shadow: items appear "seated" in the vault ── */
+  .socket-shadow {
+    box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.8);
+  }
+  .socket-shadow-lg {
+    box-shadow: inset 0px 8px 24px rgba(0, 0, 0, 0.9);
+  }
+
+  /* ── "Bloody glow" shadow for floating elements ── */
+  .shadow-blood {
+    box-shadow: 0px 20px 40px rgba(140, 0, 0, 0.12);
+  }
+  .shadow-blood-lg {
+    box-shadow: 0px 32px 64px rgba(140, 0, 0, 0.2);
+  }
+
+  /* ── Gold text glow for headings ── */
+  .text-glow-gold {
+    text-shadow: 0 0 24px rgba(247, 189, 72, 0.35), 0 0 8px rgba(247, 189, 72, 0.2);
+  }
+  .text-glow-blood {
+    text-shadow: 0 0 24px rgba(226, 70, 52, 0.4);
+  }
+
+  /* ── Ghost border fallback (felt not seen — 15% opacity) ── */
+  .ghost-border {
+    outline: 1px solid rgba(68, 71, 72, 0.15);
+  }
+
+  /* ── Reduced motion: respect user preference ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
 
