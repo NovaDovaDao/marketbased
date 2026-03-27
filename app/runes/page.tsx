@@ -4,7 +4,7 @@ import { type Rune, type RuneTier, ALL_TIERS, TIER_LABELS } from "@/types/rune"
 import { type Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Rune Market — Obsidian Vault",
+  title: "Rune Market — Market Base",
   description: "Buy, sell, and trade Diablo II runes. All 33 runes from El to Zod, organized by tier.",
 }
 
@@ -15,13 +15,6 @@ const filters: Array<{ label: string; value: string }> = [
   { label: "All Runes", value: "" },
   ...ALL_TIERS.map((t) => ({ label: TIER_LABELS[t], value: t })),
 ]
-
-// Descriptive copy per tier
-const tierLore: Record<RuneTier, string> = {
-  low: "Basic resonance stones. Plentiful in the lower realms. Perfect for new runeword formulae.",
-  mid: "Intermediate power glyphs. Found in the deeper dungeons of Act III and beyond.",
-  high: "Supreme runes of immense power. Zod, Jah, Ber — the currency of legend.",
-}
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -44,7 +37,7 @@ export default async function RunesPage({ searchParams }: PageProps) {
       {/* ═══════════════════════════════════════════════════════
           PAGE HERO
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden pt-24 pb-12">
+      <section className="relative overflow-hidden pt-24 pb-4">
         {/* Ambient gold glow — right side desktop */}
         <div
           className="pointer-events-none absolute right-0 top-0 hidden h-[50vh] w-[35vw] lg:block"
@@ -67,11 +60,6 @@ export default async function RunesPage({ searchParams }: PageProps) {
               >
                 Rune Market
               </h1>
-              <p className="mt-4 max-w-xl font-body text-base italic text-on-surface-variant/60 leading-relaxed">
-                {activeTier
-                  ? tierLore[activeTier]
-                  : "All 33 runes of Sanctuary — from \u00C9l to Zod. List yours, acquire what you seek, forge the perfect runeword."}
-              </p>
             </div>
             <div className="mb-2 h-px flex-1 hidden lg:block bg-secondary/15" aria-hidden="true" />
             <p className="mb-2 hidden shrink-0 text-label-sm text-on-surface-variant/40 lg:block">
@@ -82,53 +70,10 @@ export default async function RunesPage({ searchParams }: PageProps) {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          TIER FILTER STRIP
-          ═══════════════════════════════════════════════════════ */}
-      <section className="bg-surface-container-lowest" aria-label="Filter runes by tier">
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="flex items-center gap-2 overflow-x-auto py-4 scrollbar-none" role="tablist">
-            {filters.map(({ label, value }) => {
-              const isActive = activeTier === value
-              return (
-                <a
-                  key={value || "all"}
-                  href={value ? `?tier=${value}` : "/runes"}
-                  role="tab"
-                  aria-selected={isActive}
-                  className={[
-                    "shrink-0 min-h-10 px-5 py-2",
-                    "text-label-sm uppercase tracking-widest transition-colors",
-                    isActive
-                      ? "bg-surface-container-highest text-secondary"
-                      : "bg-transparent text-on-surface-variant/60 hover:bg-surface-container-high hover:text-on-surface-variant",
-                  ].join(" ")}
-                >
-                  {label}
-                </a>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
           RUNE GRID
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-surface-container-lowest py-16" aria-label="Rune listings">
+      <section className="bg-surface-container-lowest py-6" aria-label="Rune listings">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          {/* Section label */}
-          <div className="mb-10 flex items-end gap-6">
-            <div>
-              <p className="text-label-sm mb-2 text-secondary">
-                {activeTier ? TIER_LABELS[activeTier] : "All Tiers"}
-              </p>
-              <h2 className="text-headline-md font-headline font-extrabold italic text-on-surface">
-                {activeTier ? `${TIER_LABELS[activeTier]} Runes` : "Complete Rune Index"}
-              </h2>
-            </div>
-            <div className="mb-1 h-px flex-1 bg-secondary/10" aria-hidden="true" />
-          </div>
-
           {/* Grid — mobile 2-col, md 3-col, lg 4-col, xl 5-col */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {visibleRunes.map((rune) => (

@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Full Obsidian Vault design token palette
+        // Full Market Base design token palette
         surface: '#131313',
         'surface-dim': '#131313',
         'surface-bright': '#393939',

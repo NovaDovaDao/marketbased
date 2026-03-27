@@ -1,12 +1,12 @@
 "use client"
 
+import Image from "next/image"
 import { useEffect, useState } from "react"
 
 const navLinks = [
   { label: "Runes", href: "/runes" },
-  { label: "Trades", href: "#" },
-  { label: "Ledger", href: "#" },
-  { label: "Players", href: "#" },
+  { label: "Trading", href: "#" },
+  { label: "Leaderboard", href: "#" },
 ]
 
 export default function Header() {
@@ -38,50 +38,9 @@ export default function Header() {
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
           {/* ── Brand mark ── */}
-          <a href="/" className="flex items-center gap-3 no-underline" aria-label="Obsidian Vault — home">
+          <a href="/" className="flex items-center gap-3 no-underline" aria-label="Market Base — home">
             {/* Skull + crown logo mark */}
-            <svg
-              width="28"
-              height="36"
-              viewBox="0 0 160 204"
-              fill="none"
-              aria-hidden="true"
-              className="shrink-0"
-            >
-              <defs>
-                <radialGradient id="hdr-eye-l" cx="50%" cy="50%" r="50%">
-                  <stop offset="20%" stopColor="#ffc876" />
-                  <stop offset="100%" stopColor="#f5a000" stopOpacity="0.5" />
-                </radialGradient>
-                <radialGradient id="hdr-eye-r" cx="50%" cy="50%" r="50%">
-                  <stop offset="20%" stopColor="#ffc876" />
-                  <stop offset="100%" stopColor="#f5a000" stopOpacity="0.5" />
-                </radialGradient>
-              </defs>
-              {/* Crown fill */}
-              <path d="M56 54 L52 36 L65 54Z" fill="#13110c" />
-              <path d="M72 54 L80 26 L88 54Z" fill="#13110c" />
-              <path d="M104 54 L108 36 L95 54Z" fill="#13110c" />
-              <rect x="50" y="53" width="60" height="12" fill="#13110c" />
-              {/* Crown gold outline */}
-              <path d="M56 54 L52 36 L65 54" fill="none" stroke="#f7bd48" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M72 54 L80 26 L88 54Z" fill="none" stroke="#f7bd48" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M104 54 L108 36 L95 54" fill="none" stroke="#f7bd48" strokeWidth="1.5" strokeLinejoin="round" />
-              <rect x="50" y="53" width="60" height="12" fill="none" stroke="#f7bd48" strokeWidth="1.5" />
-              <circle cx="80" cy="59" r="2.5" fill="#f7bd48" opacity="0.75" />
-              {/* Skull body */}
-              <path d="M80 72 C42 72 34 96 34 116 C34 132 39 142 48 150 L50 156 L48 166 L56 158 L61 167 L67 158 L71 166 L77 160 L80 168 L83 160 L89 166 L93 158 L99 167 L104 158 L112 166 L110 156 L112 150 C121 142 126 132 126 116 C126 96 118 72 80 72 Z" fill="#111111" />
-              {/* Skull gold rim */}
-              <path d="M80 72 C42 72 34 96 34 116 C34 132 39 142 48 150 L50 156 L48 166 L56 158 L61 167 L67 158 L71 166 L77 160 L80 168 L83 160 L89 166 L93 158 L99 167 L104 158 L112 166 L110 156 L112 150 C121 142 126 132 126 116 C126 96 118 72 80 72 Z" fill="none" stroke="#f7bd48" strokeWidth="1.0" opacity="0.55" />
-              {/* Eye sockets */}
-              <ellipse cx="62" cy="116" rx="16" ry="14" fill="url(#hdr-eye-l)" />
-              <ellipse cx="98" cy="116" rx="16" ry="14" fill="url(#hdr-eye-r)" />
-              {/* Forehead diamond */}
-              <path d="M80 82 L84.5 90 L80 98 L75.5 90Z" fill="#f7bd48" opacity="0.65" />
-            </svg>
-            <span>
-              OBSIDIAN VAULT
-            </span>
+            <Image src="/logo.svg" alt="Market Base" width={50} height={50} />
           </a>
 
           {/* ── Desktop nav ── */}

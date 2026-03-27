@@ -44,7 +44,7 @@ export default function Footer() {
                 <path d="M80 82 L84.5 90 L80 98 L75.5 90Z" fill="#f7bd48" opacity="0.65" />
               </svg>
               <span className="font-headline text-base font-bold italic tracking-tighter text-secondary">
-                OBSIDIAN VAULT
+                Market Base
               </span>
             </div>
             <p className="mb-8 font-body text-sm leading-relaxed text-on-surface-variant/60">
