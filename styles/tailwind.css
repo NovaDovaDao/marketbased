@@ -1,19 +1,58 @@
 @import 'tailwindcss';
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+/* Import Newsreader from Google Fonts (recommended). If offline, fall back to serif. */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@400;600;700&display=swap');
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* Design tokens from stitch/obsidian_vault/DESIGN.md */
+:root {
+  --surface: #131313;
+  --primary: #ffb4a8;
+  --secondary: #f7bd48;
+  --on-surface-variant: #c4c7c7;
+  --surface-container-lowest: #0e0e0e;
+  --surface-container-highest: #353534;
+}
+
+html, body {
+  height: 100%;
+}
+
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
+  html, body {
+    background-color: var(--surface);
+    color: var(--on-surface-variant);
+    font-family: Newsreader, serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+  }
+
+  /* Enforce hard edges across the app per design rules */
+  *, ::before, ::after {
+    border-radius: 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* Compatibility: keep default border-color behavior */
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+
+  /* Subtle grain overlay to add tactile feel (low opacity) */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity: 0.03;
+    z-index: 9999;
+    mix-blend-mode: overlay;
+  }
 }
+
+/* Utility for obsidian container surfaces */
+.surface-container-lowest { background-color: var(--surface-container-lowest); }
+.surface-container-highest { background-color: var(--surface-container-highest); }
+
