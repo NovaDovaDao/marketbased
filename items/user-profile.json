@@ -1,0 +1,112 @@
+{
+  "id": "usr_voidscribe_01",
+  "username": "voidscribe",
+  "displayName": "The Void Scribe",
+  "avatarUrl": "/avatars/void-scribe.webp",
+  "bannerUrl": "/banners/sanctuary-banner.webp",
+  "bio": "Ancient collector of high-runes and rare runewords. Trading from the depths of Harrogath since the fall of the Prime Evils. All trades verified — no lowballs.",
+  "memberSince": "2023-04-12",
+  "lastActive": "2026-03-30",
+  "reputation": {
+    "score": 4.9,
+    "totalReviews": 312
+  },
+  "stats": {
+    "totalTrades": 847,
+    "successfulTrades": 831,
+    "successRate": 98,
+    "totalListings": 24,
+    "activeListings": 7
+  },
+  "activeListings": [
+    {
+      "runeId": 33,
+      "priceCents": 250000,
+      "condition": "new",
+      "listedAt": "2026-03-28T14:22:00Z"
+    },
+    {
+      "runeId": 32,
+      "priceCents": 185000,
+      "condition": "like-new",
+      "listedAt": "2026-03-27T09:11:00Z"
+    },
+    {
+      "runeId": 31,
+      "priceCents": 120000,
+      "condition": "new",
+      "listedAt": "2026-03-26T18:45:00Z"
+    },
+    {
+      "runeId": 30,
+      "priceCents": 95000,
+      "condition": "good",
+      "listedAt": "2026-03-25T12:00:00Z"
+    },
+    {
+      "runeId": 29,
+      "priceCents": 72000,
+      "condition": "new",
+      "listedAt": "2026-03-24T08:30:00Z"
+    },
+    {
+      "runeId": 28,
+      "priceCents": 55000,
+      "condition": "acceptable",
+      "listedAt": "2026-03-23T16:15:00Z"
+    },
+    {
+      "runeId": 25,
+      "priceCents": 38000,
+      "condition": "like-new",
+      "listedAt": "2026-03-22T11:00:00Z"
+    }
+  ],
+  "tradeHistory": [
+    {
+      "id": "trade_001",
+      "type": "sold",
+      "runeId": 33,
+      "withUser": "RuneHunter99",
+      "priceCents": 240000,
+      "state": "completed",
+      "completedAt": "2026-03-20T15:42:00Z"
+    },
+    {
+      "id": "trade_002",
+      "type": "traded",
+      "runeId": 27,
+      "withUser": "AncientKing",
+      "priceCents": 150000,
+      "state": "completed",
+      "completedAt": "2026-03-18T10:17:00Z"
+    },
+    {
+      "id": "trade_003",
+      "type": "bought",
+      "runeId": 31,
+      "withUser": "SanctuaryMerchant",
+      "priceCents": 118000,
+      "state": "completed",
+      "completedAt": "2026-03-15T09:05:00Z"
+    },
+    {
+      "id": "trade_004",
+      "type": "sold",
+      "runeId": 26,
+      "withUser": "GrimLorePeddler",
+      "priceCents": 84000,
+      "state": "cancelled",
+      "completedAt": "2026-03-12T20:35:00Z"
+    },
+    {
+      "id": "trade_005",
+      "type": "sold",
+      "runeId": 24,
+      "withUser": "CrypticVaultsman",
+      "priceCents": 62000,
+      "state": "completed",
+      "completedAt": "2026-03-08T13:00:00Z"
+    }
+  ]
+}
