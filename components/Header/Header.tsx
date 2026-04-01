@@ -16,10 +16,42 @@ type SessionUser = { id: string; name: string; username?: string }
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const { data: session } = authClient.useSession()
   const sessionUser = session?.user as SessionUser | undefined
   const profileHref = sessionUser?.username ? `/profile/${sessionUser.username}` : "/me"
   const displayName = sessionUser?.username ?? sessionUser?.name ?? ""
+
+  const fetchUnread = async () => {
+    try {
+      const res = await fetch("/api/trade-rooms")
+      if (!res.ok) return
+      const rooms = (await res.json()) as { unreadCount: number }[]
+      setUnreadCount(rooms.reduce((sum, r) => sum + r.unreadCount, 0))
+    } catch {
+      // silently ignore — badge just stays stale
+    }
+  }
+
+  // Poll for unread count when authenticated
+  useEffect(() => {
+    if (!sessionUser) {
+      setUnreadCount(0)
+      return
+    }
+    void fetchUnread()
+    const interval = setInterval(() => { void fetchUnread() }, 30_000)
+    const onFocus = () => { void fetchUnread() }
+    const onNewRoom = () => { void fetchUnread() }
+    window.addEventListener("focus", onFocus)
+    window.addEventListener("trade-room-unread-updated", onNewRoom)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener("focus", onFocus)
+      window.removeEventListener("trade-room-unread-updated", onNewRoom)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionUser?.id])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -67,6 +99,21 @@ export default function Header() {
           <div className="hidden items-center gap-4 md:flex">
             {session ? (
               <>
+                {/* Messages icon with unread badge */}
+                <a
+                  href="/trade-rooms"
+                  aria-label={unreadCount > 0 ? `Messages (${unreadCount} unread)` : "Messages"}
+                  className="relative inline-flex items-center justify-center text-on-surface-variant/70 transition-colors duration-150 hover:text-secondary"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </a>
                 <CreateListingDialog
                   trigger={
                     <button className="inline-flex items-center gap-1.5 border border-secondary/40 px-3.5 py-1.5 font-headline text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:bg-secondary/10">
@@ -152,6 +199,20 @@ export default function Header() {
                 {link.label}
               </a>
             ))}
+            {session && (
+              <a
+                href="/trade-rooms"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-between border-b border-outline-variant/20 py-5 text-headline-md font-headline font-semibold text-on-surface-variant transition-colors hover:text-secondary"
+              >
+                Messages
+                {unreadCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold leading-none text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </a>
+            )}
           </nav>
           <div className="px-6 pt-2 flex flex-col gap-4">
             {session ? (

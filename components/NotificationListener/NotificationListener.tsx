@@ -44,6 +44,8 @@ export function NotificationListener() {
     socket.on("new-trade-room", (payload: NewTradeRoomPayload) => {
       const id = `${Date.now()}-${payload.tradeRoomId}`
       setNotifications((prev) => [...prev, { id, payload }])
+      // Signal header to refresh its unread badge immediately
+      window.dispatchEvent(new CustomEvent("trade-room-unread-updated"))
       // Auto-dismiss after 8 seconds
       setTimeout(() => {
         setNotifications((prev) => prev.filter((n) => n.id !== id))

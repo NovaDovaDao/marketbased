@@ -42,15 +42,21 @@ export async function GET(req: NextRequest): Promise<Response> {
   // Compute unread count per room (messages after last read by userId)
   const result = await Promise.all(
     rooms.map(async (room) => {
-      const unread = await prisma.message.count({
+      // Prisma cannot filter JSON key non-existence with .count(), so fetch
+      // only the readAt field and filter in application code.
+      const msgs = await prisma.message.findMany({
         where: {
           tradeRoomId: room.id,
           isDeleted: false,
           senderId: { not: userId },
-          // Count messages where userId is NOT in readAt keys
-          readAt: { path: [userId], equals: undefined },
         },
+        select: { readAt: true },
       });
+      const unread = msgs.filter((m) => {
+        const ra = m.readAt;
+        if (ra === null || typeof ra !== "object" || Array.isArray(ra)) return true;
+        return !(userId in (ra as Record<string, unknown>));
+      }).length;
 
       return {
         id: room.id,

@@ -12,6 +12,8 @@ import type { ClientToServerEvents, ServerSocket, ServerToClientEvents, SocketDa
 
 const PORT = parseInt(process.env.PORT ?? "3001", 10);
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "http://localhost:3000";
+// Support comma-separated origins (e.g. "https://prod.example.com,http://localhost:3000")
+const allowedOrigins = ALLOWED_ORIGIN.split(",").map((s) => s.trim()).filter(Boolean);
 const CHAT_SERVICE_SECRET = process.env.CHAT_SERVICE_SECRET ?? "";
 
 const app = express();
@@ -26,7 +28,7 @@ const httpServer = createServer(app);
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>(httpServer, {
   cors: {
-    origin: ALLOWED_ORIGIN,
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
     methods: ["GET", "POST"],
   },
