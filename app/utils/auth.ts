@@ -2,7 +2,7 @@ import { prisma } from "@/app/lib/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { generateRandomString } from "better-auth/crypto";
-import { emailOTP, siwe } from "better-auth/plugins";
+import { admin, emailOTP, siwe } from "better-auth/plugins";
 import { Resend } from "resend";
 import { createPublicClient, http } from "viem";
 import { base, mainnet } from "viem/chains";
@@ -72,17 +72,26 @@ export const auth = betterAuth({
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[emailOTP] OTP for ${email}: ${otp}`);
+          return;
+        }
         const resend = new Resend(process.env.RESEND_API_KEY);
         const subject =
           type === "sign-in" ? "Your Market Base sign-in code" : "Verify your email";
-        await resend.emails.send({
-          from: "Market Base <noreply@marketbase.gg>",
+        const { error } = await resend.emails.send({
+          from: "Market Base <onboarding@resend.dev>",
           to: email,
           subject,
           html: `<p>Your verification code is: <strong>${otp}</strong></p><p>This code expires in 10 minutes.</p>`,
         });
+        if (error) {
+          console.error("[emailOTP] Resend error:", error);
+          throw new Error(error.message);
+        }
       },
     }),
+    admin(),
     siwe({
       domain: process.env.BETTER_AUTH_URL
         ? new URL(process.env.BETTER_AUTH_URL).host

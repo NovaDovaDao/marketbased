@@ -26,7 +26,7 @@ function StatCell({ value, label }: StatCellProps) {
 
 function formatMemberSince(dateStr: string): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+  return date.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" })
 }
 
 export default function UserProfileStats({ stats, memberSince }: UserProfileStatsProps) {

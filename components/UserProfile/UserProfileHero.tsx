@@ -3,7 +3,8 @@
 import { authClient } from "@/app/utils/auth-client"
 import type { UserProfile } from "@/types/user"
 import Image from "next/image"
-import { useCallback, useState } from "react"
+import Link from "next/link"
+import { useCallback, useEffect, useState } from "react"
 import { createWalletClient, custom } from "viem"
 import { base } from "viem/chains"
 import { createSiweMessage } from "viem/siwe"
@@ -18,9 +19,11 @@ declare global {
 
 export interface UserProfileHeroProps {
   profile: Pick<UserProfile, "username" | "displayName" | "avatarUrl" | "bannerUrl" | "bio" | "reputation">
+  /** ID of an existing TradeRoom between the session user and this profile user. Null = no shared room. */
+  tradeRoomId?: string | null
 }
 
-export default function UserProfileHero({ profile }: UserProfileHeroProps) {
+export default function UserProfileHero({ profile, tradeRoomId }: UserProfileHeroProps) {
   const { username, displayName, avatarUrl, bannerUrl, bio, reputation } = profile
   const { data: session } = authClient.useSession()
 
@@ -28,6 +31,10 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
   type SessionUserExtended = { id: string; name: string; username?: string }
   const sessionUser = session?.user as SessionUserExtended | undefined
   const isOwner = sessionUser?.username === username || sessionUser?.id === username
+
+  // Defer session-dependent rendering until after hydration to avoid SSR mismatch
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   // ── Username editing ──────────────────────────────────────────
   const [editingUsername, setEditingUsername] = useState(false)
@@ -184,7 +191,7 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
             >
               {displayName}
             </h1>
-            {isOwner && editingUsername ? (
+            {mounted && isOwner && editingUsername ? (
               <form onSubmit={(e) => void handleSaveUsername(e)} className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-on-surface-variant/40">@</span>
@@ -217,7 +224,7 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
                 <p className="font-headline text-sm text-on-surface-variant/60 md:text-base">
                   @{currentUsername}
                 </p>
-                {isOwner && (
+                {mounted && isOwner && (
                   <button
                     onClick={() => setEditingUsername(true)}
                     className="text-[10px] text-on-surface-variant/30 hover:text-secondary/60 transition-colors uppercase tracking-widest"
@@ -248,7 +255,7 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
           </div>
 
           {/* Wallet — only visible to the profile owner */}
-          {isOwner && (
+          {mounted && isOwner && (
             <div className="flex flex-col items-end gap-1">
               {displayAddress ? (
                 <div
@@ -273,6 +280,21 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
               )}
               {error && <p className="text-[11px] text-red-400/80">{error}</p>}
             </div>
+          )}
+
+          {/* Message button — TEST MODE: always shown to non-owners; restore `&& tradeRoomId` guard after testing */}
+          {mounted && !isOwner && (
+            <Link
+              href={tradeRoomId ? `/trade-rooms/${tradeRoomId}` : `/trade-rooms`}
+              className="inline-flex items-center gap-2 px-6 py-3 font-headline text-sm font-bold uppercase tracking-widest transition-opacity duration-300 hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+              style={{ background: "linear-gradient(135deg, #8c0000 0%, #920603 100%)", color: "#fff8e7" }}
+              aria-label={`Message ${displayName}`}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M1 1h12v9H8l-4 3V10H1V1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              </svg>
+              Message
+            </Link>
           )}
         </div>
       </div>

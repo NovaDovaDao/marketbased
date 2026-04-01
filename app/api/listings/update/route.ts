@@ -1,7 +1,25 @@
 import { prisma } from "@/app/lib/prisma";
 import { auth } from "@/app/utils/auth";
-import { type Listing } from "@/generated/prisma/client";
 import { type NextRequest } from "next/server";
+import { z } from "zod";
+
+const priceSchema = z
+  .object({
+    usdc: z.number().int().positive().optional(),
+    eth: z.union([z.string().min(1), z.number().positive()]).optional(),
+  })
+  .refine((d) => d.usdc !== undefined || d.eth !== undefined, {
+    message: "At least one of usdc or eth must be provided",
+  });
+
+const createListingSchema = z.object({
+  id: z.string().uuid().optional(),
+  contentId: z.string().min(1).max(200),
+  name: z.string().min(1).max(200),
+  baseName: z.string().min(1).max(200),
+  rarity: z.string().min(1).max(50),
+  price: priceSchema,
+});
 
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
@@ -9,26 +27,29 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await req.json()) as Omit<Listing, "createdAt">;
-
-  if (!body.price) {
-    return Response.json({ error: "Missing price" }, { status: 400 });
+  const parsed = createListingSchema.safeParse(await req.json());
+  if (!parsed.success) {
+    return Response.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
+      { status: 400 }
+    );
   }
 
+  const { id, contentId, name, baseName, rarity, price } = parsed.data;
   const sellerId = session.user.id;
 
-  const listing = await prisma.listing.upsert({
-    where: { id: body.id ?? "", sellerId },
-    update: { price: body.price },
-    create: {
-      baseName: body.baseName,
-      contentId: body.contentId,
-      name: body.name,
-      price: body.price,
-      rarity: body.rarity,
-      sellerId,
-    },
-  });
+  let listing;
+  if (id) {
+    // Update existing listing — ownership check is enforced in where clause
+    listing = await prisma.listing.update({
+      where: { id, sellerId },
+      data: { price },
+    });
+  } else {
+    listing = await prisma.listing.create({
+      data: { contentId, name, baseName, rarity, price, sellerId },
+    });
+  }
 
   return Response.json(listing);
 }

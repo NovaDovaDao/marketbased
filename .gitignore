@@ -44,3 +44,4 @@ storybook-static/
 # TypeScript incremental compilation cache
 *.tsbuildinfo
 
+.vercel

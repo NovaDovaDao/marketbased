@@ -1,6 +1,7 @@
 "use client"
 
 import { authClient } from "@/app/utils/auth-client"
+import { CreateListingDialog } from "@/components/CreateListingDialog/CreateListingDialog"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
@@ -66,6 +67,16 @@ export default function Header() {
           <div className="hidden items-center gap-4 md:flex">
             {session ? (
               <>
+                <CreateListingDialog
+                  trigger={
+                    <button className="inline-flex items-center gap-1.5 border border-secondary/40 px-3.5 py-1.5 font-headline text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:bg-secondary/10">
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                        <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
+                      </svg>
+                      Sell
+                    </button>
+                  }
+                />
                 <a
                   href={profileHref}
                   className="text-label-md text-on-surface-variant/70 transition-colors duration-150 hover:text-secondary"
@@ -145,6 +156,19 @@ export default function Header() {
           <div className="px-6 pt-2 flex flex-col gap-4">
             {session ? (
               <>
+                <CreateListingDialog
+                  trigger={
+                    <button
+                      onClick={() => setMenuOpen(false)}
+                      className="inline-flex items-center gap-2 border border-secondary/40 px-4 py-2.5 font-headline text-xs font-bold uppercase tracking-widest text-secondary transition-colors hover:bg-secondary/10"
+                    >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                        <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
+                      </svg>
+                      Sell Item
+                    </button>
+                  }
+                />
                 <a
                   href={profileHref}
                   onClick={() => setMenuOpen(false)}

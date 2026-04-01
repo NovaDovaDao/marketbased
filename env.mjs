@@ -16,12 +16,17 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string().min(1),
     MERCHANT_ADDRESS: z.string().regex(ethAddressRegex, "Must be a valid Ethereum address").optional(),
     RESEND_API_KEY: z.string().min(1),
+    UPSTASH_REDIS_URL: z.string().url().optional(),
+    UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
+    CHAT_SERVICE_URL: z.string().url().optional(),
+    CHAT_SERVICE_SECRET: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_MERCHANT_ADDRESS: z
       .string()
       .regex(ethAddressRegex, "Must be a valid Ethereum address")
       .optional(),
+    NEXT_PUBLIC_SOCKET_SERVER_URL: z.string().url().optional(),
   },
   runtimeEnv: {
     ANALYZE: process.env.ANALYZE,
@@ -32,6 +37,11 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     MERCHANT_ADDRESS: process.env.MERCHANT_ADDRESS,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+    UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL,
+    UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN,
+    CHAT_SERVICE_URL: process.env.CHAT_SERVICE_URL,
+    CHAT_SERVICE_SECRET: process.env.CHAT_SERVICE_SECRET,
     NEXT_PUBLIC_MERCHANT_ADDRESS: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
+    NEXT_PUBLIC_SOCKET_SERVER_URL: process.env.NEXT_PUBLIC_SOCKET_SERVER_URL,
   },
 })

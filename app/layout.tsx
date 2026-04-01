@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer/Footer"
 import Header from "@/components/Header/Header"
+import { NotificationListener } from "@/components/NotificationListener/NotificationListener"
 import "@/styles/tailwind.css"
 import { Newsreader } from "next/font/google"
 
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         {children}
         <Footer />
+        <NotificationListener />
       </body>
     </html>
   )

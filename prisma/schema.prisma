@@ -49,15 +49,19 @@ model Transaction {
 }
 
 model User {
-  id       String @id @default(uuid())
+  id                String    @id @default(uuid())
   email             String    @unique
   username          String    @unique
   usernameUpdatedAt DateTime?
 
-  listings       Listing[]
-  offers         Offer[]
-  transactions   Transaction[]
+  listings        Listing[]
+  offers          Offer[]
+  transactions    Transaction[]
   walletAddresses WalletAddress[]
+  sellerRooms     TradeRoom[]     @relation("SellerRooms")
+  buyerRooms      TradeRoom[]     @relation("BuyerRooms")
+  messages        Message[]
+  messageReports  MessageReport[]
 
   createdAt     DateTime  @default(now())
   name          String
@@ -66,6 +70,12 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  // Better Auth admin plugin fields
+  role       String?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
 
   @@map("user")
 }
@@ -110,12 +120,85 @@ model Offer {
   status    String @default("pending")
 
   transaction Transaction?
+  tradeRoom   TradeRoom?
 
   createdAt DateTime @default(now())
 
   @@index([listingId])
   @@index([buyerId])
   @@map("offer")
+}
+
+model TradeRoom {
+  id String @id @default(cuid())
+
+  offerId String @unique
+  offer   Offer  @relation(fields: [offerId], references: [id])
+
+  sellerId String
+  seller   User   @relation("SellerRooms", fields: [sellerId], references: [id])
+
+  buyerId String
+  buyer   User   @relation("BuyerRooms", fields: [buyerId], references: [id])
+
+  // active | completed | cancelled
+  status String @default("active")
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
+  @@index([buyerId])
+  @@index([status])
+  @@map("trade_room")
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  tradeRoomId String
+  tradeRoom   TradeRoom @relation(fields: [tradeRoomId], references: [id])
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  content   String  @db.Text
+  // text | system
+  type      String  @default("text")
+  isDeleted Boolean @default(false)
+
+  // { "userId": "ISO-timestamp" }
+  readAt Json?
+
+  reports MessageReport[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tradeRoomId, createdAt])
+  @@index([senderId])
+  @@map("message")
+}
+
+model MessageReport {
+  id String @id @default(cuid())
+
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id])
+
+  reporterId String
+  reporter   User   @relation(fields: [reporterId], references: [id])
+
+  reason String
+  // pending | reviewed | dismissed
+  status String @default("pending")
+
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, reporterId])
+  @@index([status])
+  @@map("message_report")
 }
 
 model WalletAddress {

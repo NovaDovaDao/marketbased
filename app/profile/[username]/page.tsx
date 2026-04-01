@@ -1,8 +1,11 @@
 import { prisma } from "@/app/lib/prisma"
+import { auth } from "@/app/utils/auth"
+import { ListingOffersManager } from "@/components/ListingOffersManager/ListingOffersManager"
 import MyProfileListings from "@/components/UserProfile/MyProfileListings"
 import UserProfileHero from "@/components/UserProfile/UserProfileHero"
 import UserProfileStats from "@/components/UserProfile/UserProfileStats"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 
 interface Props {
@@ -37,6 +40,23 @@ export default async function ProfilePage({ params }: Props) {
   const activeCount = user.listings.length
   const txCount = user._count.transactions
 
+  // Find an existing trade room between the session user and this profile user
+  const session = await auth.api.getSession({ headers: await headers() })
+  let sharedRoomId: string | null = null
+  if (session && session.user.id !== user.id) {
+    const room = await prisma.tradeRoom.findFirst({
+      where: {
+        OR: [
+          { sellerId: session.user.id, buyerId: user.id },
+          { sellerId: user.id, buyerId: session.user.id },
+        ],
+      },
+      select: { id: true },
+      orderBy: { updatedAt: "desc" },
+    })
+    sharedRoomId = room?.id ?? null
+  }
+
   return (
     <main className="min-h-screen bg-surface" aria-label={`${user.name} profile`}>
       <UserProfileHero
@@ -48,6 +68,7 @@ export default async function ProfilePage({ params }: Props) {
           bio: "Trading from the depths of Sanctuary.",
           reputation: { score: 0, totalReviews: 0 },
         }}
+        tradeRoomId={sharedRoomId}
       />
 
       <div className="mt-8">
@@ -66,6 +87,7 @@ export default async function ProfilePage({ params }: Props) {
 
       <div className="mx-auto flex max-w-5xl flex-col gap-14 px-5 py-12 md:px-8">
         <MyProfileListings listings={user.listings} />
+        {session?.user.id === user.id && <ListingOffersManager />}
       </div>
     </main>
   )

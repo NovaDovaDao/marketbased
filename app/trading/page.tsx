@@ -1,4 +1,7 @@
+import { prisma } from "@/app/lib/prisma"
+import { DbListingCard } from "@/app/trading/DbListingCard"
 import CoreParameters from "@/components/CoreParameters/CoreParameters"
+import { SellItemButton } from "@/components/SellItemButton/SellItemButton"
 import TradingListingCard from "@/components/TradingListingCard/TradingListingCard"
 import TradingSidebar from "@/components/TradingSidebar/TradingSidebar"
 import listingsData from "@/items/trading-listings.json"
@@ -17,6 +20,31 @@ export const metadata: Metadata = {
 
 const ITEMS_PER_PAGE = 12
 const allListings = listingsData as TradingListing[]
+
+// ── DB listing price formatter ────────────────────────────────────────────
+
+type PriceJson = { usdc?: number; eth?: string | number;[key: string]: unknown }
+
+function formatDbPrice(price: unknown): { display: string; usdCents?: number } {
+  if (!price || typeof price !== "object" || Array.isArray(price)) return { display: "—" }
+  const p = price as PriceJson
+  if (typeof p.usdc === "number") {
+    return { display: `$${(p.usdc / 100).toFixed(2)}`, usdCents: p.usdc }
+  }
+  if (p.eth !== undefined) return { display: `${p.eth} ETH` }
+  const first = Object.entries(p)[0]
+  return first ? { display: `${first[1]} ${first[0].toUpperCase()}` } : { display: "—" }
+}
+
+const RARITY_COLOR: Record<string, string> = {
+  Unique: "#ff9b48",
+  Set: "#4ade80",
+  Rare: "#6aa0ff",
+  Magic: "#a78bfa",
+  Rune: "#f7bd48",
+  Runeword: "#f7bd48",
+  Normal: "#9ca3af",
+}
 
 // ── Server-side filter logic ───────────────────────────────────────────────
 
@@ -151,6 +179,14 @@ export default async function TradingPage({ searchParams }: PageProps) {
     safePage * ITEMS_PER_PAGE
   )
 
+  // Fetch real DB listings
+  const dbListings = await prisma.listing.findMany({
+    where: { status: "active" },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+    include: { seller: { select: { id: true, username: true } } },
+  })
+
   // Build a URL that replaces the page param
   function pageUrl(p: number): string {
     const sp = new URLSearchParams()
@@ -197,17 +233,54 @@ export default async function TradingPage({ searchParams }: PageProps) {
               </p>
             </div>
 
-            {/* Sort stub */}
-            <div className="flex items-center gap-2 border border-stone-900 bg-surface-container-low px-4 py-2">
-              <span className="font-serif text-xs tracking-widest text-stone-600 uppercase">Sort By</span>
-              <span className="font-serif text-xs text-secondary">Highest Rarity</span>
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" className="text-stone-600" />
-              </svg>
+            <div className="flex items-center gap-3">
+              {/* Sell Item */}
+              <SellItemButton />
+
+              {/* Sort stub */}
+              <div className="flex items-center gap-2 border border-stone-900 bg-surface-container-low px-4 py-2">
+                <span className="font-serif text-xs tracking-widest text-stone-600 uppercase">Sort By</span>
+                <span className="font-serif text-xs text-secondary">Highest Rarity</span>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                  <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" className="text-stone-600" />
+                </svg>
+              </div>
             </div>
           </div>
 
-          {/* ── Listing grid ── */}
+          {/* ── DB Live Listings ── */}
+          {dbListings.length > 0 && (
+            <section aria-label="Live listings" className="mb-14">
+              <div className="mb-5 flex items-center gap-3">
+                <h2 className="font-headline text-sm font-bold uppercase tracking-widest text-secondary/70">
+                  Live Listings
+                </h2>
+                <span className="h-px flex-1 bg-stone-800" aria-hidden="true" />
+                <span className="font-headline text-xs text-on-surface-variant/30">{dbListings.length} active</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {dbListings.map((listing) => {
+                  const { display, usdCents } = formatDbPrice(listing.price)
+                  const color = RARITY_COLOR[listing.rarity] ?? "#9ca3af"
+                  return (
+                    <DbListingCard
+                      key={listing.id}
+                      id={listing.id}
+                      name={listing.name}
+                      rarity={listing.rarity}
+                      rarityColor={color}
+                      priceDisplay={display}
+                      priceUsdCents={usdCents}
+                      sellerUsername={listing.seller.username ?? ""}
+                    />
+                  )
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* ── Catalog Listing grid ── */}
           {pageListings.length > 0 ? (
             <div className="grid grid-cols-1 gap-10 xl:grid-cols-2 2xl:grid-cols-3">
               {pageListings.map((listing) => (
