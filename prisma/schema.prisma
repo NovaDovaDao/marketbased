@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+model Transaction {
+  id String @id @default(cuid())
+
+  txHash String @unique
+
+  // Relations
+  listingId String?
+  listing   Listing? @relation(fields: [listingId], references: [id])
+
+  offerId String? @unique
+  offer   Offer?  @relation(fields: [offerId], references: [id])
+
+  buyerId String
+  buyer   User   @relation(fields: [buyerId], references: [id])
+
+  // Keep email for external payments (optional fallback)
+  buyerEmail String?
+
+  // Flexible amount (supports crypto OR runes)
+  amount Json // { "usdc": 100 } OR { "runes": [...] }
+
+  status TransactionStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([buyerId])
+  @@index([status])
+  @@map("transaction")
+}
+
+model User {
+  id       String @id @default(uuid())
+  email             String    @unique
+  username          String    @unique
+  usernameUpdatedAt DateTime?
+
+  listings       Listing[]
+  offers         Offer[]
+  transactions   Transaction[]
+  walletAddresses WalletAddress[]
+
+  createdAt     DateTime  @default(now())
+  name          String
+  emailVerified Boolean   @default(false)
+  image         String?
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Listing {
+  id String @id @default(uuid())
+
+  contentId String
+
+  name     String
+  baseName String
+  rarity   String
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id])
+
+  price Json // rune or crypto pricing
+
+  status String @default("active")
+
+  offers       Offer[]
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+
+  @@index([contentId])
+  @@index([sellerId])
+  @@index([status])
+  @@map("listing")
+}
+
+model Offer {
+  id String @id @default(uuid())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  buyerId String
+  buyer   User   @relation(fields: [buyerId], references: [id])
+
+  offerData Json // runes / items
+  status    String @default("pending")
+
+  transaction Transaction?
+
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@map("offer")
+}
+
+model WalletAddress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address   String   @unique
+  chainId   Int
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("wallet_address")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}

@@ -25,6 +25,7 @@
     "coupling-graph": "npx madge --extensions js,jsx,ts,tsx,css,md,mdx ./ --exclude '.next|tailwind.config.js|reset.d.ts|prettier.config.js|postcss.config.js|playwright.config.ts|next.config.js|next-env.d.ts|instrumentation.ts|e2e/|README.md|.storybook/|.eslintrc.js' --image graph.svg"
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "^4.3.7",
     "@next/bundle-analyzer": "^16.2.1",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
@@ -51,6 +52,7 @@
     "@semantic-release/release-notes-generator": "^14.1.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@vercel/otel": "^2.1.1",
+    "better-auth": "^1.5.6",
     "class-variance-authority": "^0.7.1",
     "dotenv": "^17.3.1",
     "lodash": "^4.17.23",
@@ -59,6 +61,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwind-merge": "^3.5.0",
+    "viem": "^2.47.6",
     "zod": "^4.3.6"
   },
   "devDependencies": {

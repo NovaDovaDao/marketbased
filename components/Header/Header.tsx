@@ -1,5 +1,6 @@
 "use client"
 
+import { authClient } from "@/app/utils/auth-client"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
@@ -12,6 +13,7 @@ const navLinks = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { data: session } = authClient.useSession()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -39,7 +41,6 @@ export default function Header() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
           {/* ── Brand mark ── */}
           <a href="/" className="flex items-center gap-3 no-underline" aria-label="Market Base — home">
-            {/* Skull + crown logo mark */}
             <Image src="/logo.svg" alt="Market Base" width={50} height={50} />
           </a>
 
@@ -56,30 +57,35 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* ── Desktop actions ── */}
-          <div className="hidden items-center gap-3 md:flex">
-            <button
-              aria-label="Account"
-              className="flex min-h-10 min-w-10 items-center justify-center text-on-surface-variant/70 transition-colors hover:bg-surface-container hover:text-secondary"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </button>
+          {/* ── Auth button (desktop) ── */}
+          <div className="hidden items-center gap-4 md:flex">
+            {session ? (
+              <>
+                <a
+                  href={`/profile/${session.user.name}`}
+                  className="text-label-md text-on-surface-variant/70 transition-colors duration-150 hover:text-secondary"
+                >
+                  {session.user.name}
+                </a>
+                <button
+                  onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/" } } })}
+                  className="text-label-md text-on-surface-variant/40 transition-colors duration-150 hover:text-secondary"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <a
+                href="/login"
+                className="rounded border border-secondary/40 px-4 py-1.5 text-label-md text-secondary transition-colors duration-150 hover:bg-secondary/10"
+              >
+                Log in
+              </a>
+            )}
           </div>
 
-          {/* ── Mobile: account + hamburger ── */}
-          <div className="flex items-center gap-2 md:hidden">
-            <button
-              aria-label="Account"
-              className="flex min-h-11 min-w-11 items-center justify-center text-on-surface-variant/70"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </button>
+          {/* ── Mobile: hamburger ── */}
+          <div className="flex items-center md:hidden">
             <button
               onClick={() => setMenuOpen((o) => !o)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -87,13 +93,11 @@ export default function Header() {
               className="flex min-h-11 min-w-11 items-center justify-center text-on-surface-variant"
             >
               {menuOpen ? (
-                /* X icon */
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               ) : (
-                /* Hamburger */
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <line x1="3" y1="12" x2="15" y2="12" />
@@ -116,7 +120,7 @@ export default function Header() {
           aria-modal="true"
           aria-label="Mobile navigation"
         >
-          <nav className="flex flex-col px-6 pt-10 pb-8 gap-0">
+          <nav className="flex flex-col gap-0 px-6 pt-10 pb-8">
             {navLinks.map((link, i) => (
               <a
                 key={link.label}
@@ -133,15 +137,37 @@ export default function Header() {
               </a>
             ))}
           </nav>
-          <div className="px-6">
-            <a
-              href="#"
-              onClick={() => setMenuOpen(false)}
-              className="blood-gradient block w-full py-4 text-center text-label-md font-bold uppercase tracking-widest text-on-secondary"
-            >
-              Connect
-            </a>
+          <div className="px-6 pt-2 flex flex-col gap-4">
+            {session ? (
+              <>
+                <a
+                  href={`/profile/${session.user.name}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-label-md text-on-surface-variant/70 transition-colors hover:text-secondary"
+                >
+                  {session.user.name}
+                </a>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false)
+                    authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/" } } })
+                  }}
+                  className="text-left text-label-md text-on-surface-variant/40 transition-colors hover:text-secondary"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <a
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="inline-block rounded border border-secondary/40 px-5 py-2 text-label-md text-secondary transition-colors hover:bg-secondary/10"
+              >
+                Log in
+              </a>
+            )}
           </div>
+
           {/* bottom brand label */}
           <p className="absolute bottom-8 left-6 text-label-sm text-on-surface-variant/30">
             Ancient Market of Sanctuary
@@ -151,4 +177,5 @@ export default function Header() {
     </>
   )
 }
+
 

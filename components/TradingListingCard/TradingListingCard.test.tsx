@@ -7,7 +7,7 @@ const baseListing: TradingListing = {
   id: "test-001",
   name: "Harlequin Crest",
   slug: "harlequin-crest",
-  image: "https://diablo2.io/ic/items/unique/harlequin-crest-shako.png",
+  image: "https://cdn.nookazon.com/128x128/diablo2resurrected/helmet/shako_hat.png",
   category: "Uniques",
   itemType: "Helm",
   bodyLocation: "Head",
