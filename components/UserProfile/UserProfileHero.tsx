@@ -5,8 +5,8 @@ import type { UserProfile } from "@/types/user"
 import Image from "next/image"
 import { useCallback, useState } from "react"
 import { createWalletClient, custom } from "viem"
-import { createSiweMessage } from "viem/siwe"
 import { base } from "viem/chains"
+import { createSiweMessage } from "viem/siwe"
 
 declare global {
   interface Window {
@@ -24,7 +24,10 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
   const { username, displayName, avatarUrl, bannerUrl, bio, reputation } = profile
   const { data: session } = authClient.useSession()
 
-  const isOwner = session?.user.name === username
+  // username is the @handle field; session.user contains additionalFields from Better Auth
+  type SessionUserExtended = { id: string; name: string; username?: string }
+  const sessionUser = session?.user as SessionUserExtended | undefined
+  const isOwner = sessionUser?.username === username || sessionUser?.id === username
 
   // ── Username editing ──────────────────────────────────────────
   const [editingUsername, setEditingUsername] = useState(false)

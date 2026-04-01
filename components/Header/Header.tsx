@@ -10,10 +10,15 @@ const navLinks = [
   { label: "Leaderboard", href: "#" },
 ]
 
+type SessionUser = { id: string; name: string; username?: string }
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { data: session } = authClient.useSession()
+  const sessionUser = session?.user as SessionUser | undefined
+  const profileHref = sessionUser?.username ? `/profile/${sessionUser.username}` : "/me"
+  const displayName = sessionUser?.username ?? sessionUser?.name ?? ""
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -62,10 +67,10 @@ export default function Header() {
             {session ? (
               <>
                 <a
-                  href={`/profile/${session.user.name}`}
+                  href={profileHref}
                   className="text-label-md text-on-surface-variant/70 transition-colors duration-150 hover:text-secondary"
                 >
-                  {session.user.name}
+                  {displayName}
                 </a>
                 <button
                   onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/" } } })}
@@ -141,11 +146,11 @@ export default function Header() {
             {session ? (
               <>
                 <a
-                  href={`/profile/${session.user.name}`}
+                  href={profileHref}
                   onClick={() => setMenuOpen(false)}
                   className="text-label-md text-on-surface-variant/70 transition-colors hover:text-secondary"
                 >
-                  {session.user.name}
+                  {displayName}
                 </a>
                 <button
                   onClick={() => {
