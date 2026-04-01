@@ -41,3 +41,6 @@ storybook-static/
 
 /generated/prisma
 
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+

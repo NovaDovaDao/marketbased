@@ -36,7 +36,7 @@ export default function UserProfileHero({ profile }: UserProfileHeroProps) {
   const [usernameLoading, setUsernameLoading] = useState(false)
   const [currentUsername, setCurrentUsername] = useState(username)
 
-  async function handleSaveUsername(e: React.FormEvent) {
+  async function handleSaveUsername(e: React.SyntheticEvent) {
     e.preventDefault()
     const next = usernameInput.trim().toLowerCase()
     if (next === currentUsername) { setEditingUsername(false); return }
