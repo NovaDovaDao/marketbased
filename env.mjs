@@ -14,7 +14,7 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.string().url(),
     DISCORD_CLIENT_ID: z.string().min(1),
     DISCORD_CLIENT_SECRET: z.string().min(1),
-    MERCHANT_ADDRESS: z.string().regex(ethAddressRegex, "Must be a valid Ethereum address"),
+    MERCHANT_ADDRESS: z.string().regex(ethAddressRegex, "Must be a valid Ethereum address").optional(),
   },
   client: {
     NEXT_PUBLIC_MERCHANT_ADDRESS: z
