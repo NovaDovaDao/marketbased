@@ -2,7 +2,7 @@
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"
 
-[[deploy]]
+[deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyMaxRetries = 3
