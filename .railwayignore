@@ -1,0 +1,31 @@
+# Next.js app artifacts
+.next/
+out/
+build/
+
+# Dependencies (Docker handles its own install)
+node_modules/
+services/chat/node_modules/
+
+# Chat service build output
+services/chat/dist/
+
+# Generated files
+generated/
+
+# Storybook
+storybook-static/
+
+# Test artifacts
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+e2e/
+
+# Misc
+.DS_Store
+*.pem
+*.log
+.pnpm-store/
+*.tsbuildinfo
