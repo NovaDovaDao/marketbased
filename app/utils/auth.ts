@@ -1,4 +1,5 @@
 import { prisma } from "@/app/lib/prisma";
+import { env } from "@/env.mjs";
 import { dash } from "@better-auth/infra";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -7,6 +8,7 @@ import { admin, emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
 
 export const auth = betterAuth({
+  secret: env.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
