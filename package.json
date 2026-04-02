@@ -26,6 +26,7 @@
     "coupling-graph": "npx madge --extensions js,jsx,ts,tsx,css,md,mdx ./ --exclude '.next|tailwind.config.js|reset.d.ts|prettier.config.js|postcss.config.js|playwright.config.ts|next.config.js|next-env.d.ts|instrumentation.ts|e2e/|README.md|.storybook/|.eslintrc.js' --image graph.svg"
   },
   "dependencies": {
+    "@better-auth/infra": "^0.1.13",
     "@coinbase/wallet-sdk": "^4.3.7",
     "@next/bundle-analyzer": "^16.2.1",
     "@prisma/adapter-pg": "^7.6.0",

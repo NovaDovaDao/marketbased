@@ -1,23 +1,10 @@
 import { prisma } from "@/app/lib/prisma";
+import { dash } from "@better-auth/infra";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { generateRandomString } from "better-auth/crypto";
-import { admin, emailOTP, siwe } from "better-auth/plugins";
+import { admin, emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
-import { createPublicClient, http } from "viem";
-import { base, mainnet } from "viem/chains";
-
-// Used for EIP-1271 / contract wallet signature verification on Base
-const baseClient = createPublicClient({
-  chain: base,
-  transport: http(),
-});
-
-// Used for ENS name/avatar lookups (ENS lives on Ethereum mainnet, not Base)
-const mainnetClient = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-});
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -92,51 +79,6 @@ export const auth = betterAuth({
       },
     }),
     admin(),
-    siwe({
-      domain: process.env.BETTER_AUTH_URL
-        ? new URL(process.env.BETTER_AUTH_URL).host
-        : "localhost:3000",
-      anonymous: true,
-      getNonce: async () => {
-        return generateRandomString(32, "a-z", "A-Z", "0-9");
-      },
-
-      verifyMessage: async ({ message, signature, address }) => {
-        try {
-          // baseClient.verifyMessage handles both EOA (ECDSA) and
-          // contract wallets like Coinbase Smart Wallet (EIP-1271)
-          return await baseClient.verifyMessage({
-            address: address as `0x${string}`,
-            message,
-            signature: signature as `0x${string}`,
-          });
-        } catch (error) {
-          console.error("SIWE verification failed:", error);
-          return false;
-        }
-      },
-      ensLookup: async ({ walletAddress }) => {
-        try {
-          // ENS is on Ethereum mainnet — use mainnetClient, not baseClient
-          const ensName = await mainnetClient.getEnsName({
-            address: walletAddress as `0x${string}`,
-          });
-          const ensAvatar = ensName
-            ? await mainnetClient.getEnsAvatar({
-              name: ensName,
-            })
-            : null;
-          return {
-            name: ensName || walletAddress,
-            avatar: ensAvatar || "",
-          };
-        } catch {
-          return {
-            name: walletAddress,
-            avatar: "",
-          };
-        }
-      },
-    })
+    dash(),
   ]
 });
