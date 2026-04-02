@@ -81,6 +81,8 @@ export const auth = betterAuth({
       },
     }),
     admin(),
-    dash(),
+    dash({
+      apiKey: env.BETTER_AUTH_API_KEY,
+    }),
   ]
 });
