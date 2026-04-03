@@ -66,6 +66,9 @@ export function TradeRoomChat({
     const socket = io(socketUrl, {
       withCredentials: true, // sends Better Auth session cookie
       auth: { token: sessionToken }, // fallback for cross-port environments where cookie isn't forwarded
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
+      timeout: 20_000,
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1_000,

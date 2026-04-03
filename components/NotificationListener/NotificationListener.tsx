@@ -34,6 +34,9 @@ export function NotificationListener() {
     const socket = io(socketUrl, {
       withCredentials: true,
       auth: { token: session.session?.token }, // fallback for cross-port cookie forwarding
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
+      timeout: 20_000,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 2_000,

@@ -1,4 +1,5 @@
 import { checkRateLimit } from "../adapters/redis.js";
+import { randomUUID } from "node:crypto";
 import { pool } from "../db.js";
 import type { ChatMessage, ServerInstance, ServerSocket } from "../types.js";
 
@@ -78,12 +79,14 @@ export function registerMessageHandlers(socket: ServerSocket, io: ServerInstance
         return;
       }
 
+      const messageId = randomUUID();
+
       // Persist message
       const msgResult = await pool.query<{ id: string; created_at: Date }>(
-        `INSERT INTO message ("tradeRoomId", "senderId", content, type)
-         VALUES ($1, $2, $3, 'text')
+        `INSERT INTO message (id, "tradeRoomId", "senderId", content, type)
+         VALUES ($1, $2, $3, $4, 'text')
          RETURNING id, "createdAt" AS created_at`,
-        [tradeRoomId, userId, cleaned]
+        [messageId, tradeRoomId, userId, cleaned]
       );
 
       const row = msgResult.rows[0];

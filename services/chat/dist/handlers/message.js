@@ -1,4 +1,5 @@
 import { checkRateLimit } from "../adapters/redis.js";
+import { randomUUID } from "node:crypto";
 import { pool } from "../db.js";
 const MAX_CONTENT_LENGTH = 2000;
 /**
@@ -61,10 +62,11 @@ export function registerMessageHandlers(socket, io) {
                 socket.emit("error", { code: "ROOM_CLOSED", message: "This trade room is no longer active" });
                 return;
             }
+            const messageId = randomUUID();
             // Persist message
-            const msgResult = await pool.query(`INSERT INTO message ("tradeRoomId", "senderId", content, type)
-         VALUES ($1, $2, $3, 'text')
-         RETURNING id, "createdAt" AS created_at`, [tradeRoomId, userId, cleaned]);
+            const msgResult = await pool.query(`INSERT INTO message (id, "tradeRoomId", "senderId", content, type)
+         VALUES ($1, $2, $3, $4, 'text')
+         RETURNING id, "createdAt" AS created_at`, [messageId, tradeRoomId, userId, cleaned]);
             const row = msgResult.rows[0];
             if (!row)
                 throw new Error("Insert returned no row");

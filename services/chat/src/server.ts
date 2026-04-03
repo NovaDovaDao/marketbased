@@ -32,13 +32,19 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, Record<string,
     credentials: true,
     methods: ["GET", "POST"],
   },
-  pingTimeout: 20_000,
+  pingTimeout: 60_000,
   pingInterval: 25_000,
   connectionStateRecovery: {
-    // Buffer messages for up to 2 minutes during reconnect
-    maxDisconnectionDuration: 2 * 60 * 1000,
+    // Buffer messages for up to 5 minutes during reconnect
+    maxDisconnectionDuration: 5 * 60 * 1000,
     skipMiddlewares: false,
   },
+});
+
+io.engine.on("connection_error", (err) => {
+  console.warn(
+    `[chat] engine connection error code=${err.code ?? "unknown"} message=${err.message} origin=${err.req.headers.origin ?? "?"}`
+  );
 });
 
 // Auth middleware — validates Better Auth session cookie before establishing WS
