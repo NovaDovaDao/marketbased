@@ -52,7 +52,7 @@ export function ReportModal({ messageId }: ReportModalProps) {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <button
-          className="rounded p-1 text-zinc-600 opacity-0 transition-opacity hover:text-zinc-400 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500"
+          className="p-1 text-on-surface-variant/30 opacity-0 transition-all duration-300 hover:text-primary/60 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/40"
           aria-label="Report message"
           title="Report this message"
         >
@@ -67,61 +67,61 @@ export function ReportModal({ messageId }: ReportModalProps) {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
-        <Dialog.Content className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
-          <Dialog.Title className="mb-1 text-base font-semibold text-zinc-100">
+        <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/75 backdrop-blur-sm" />
+        <Dialog.Content className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 bg-surface-container-highest p-6 shadow-blood-lg">
+          <Dialog.Title className="mb-1 font-headline text-base font-bold tracking-editorial text-secondary">
             Report Message
           </Dialog.Title>
-          <Dialog.Description className="mb-5 text-sm text-zinc-400">
-            Our moderation team will review this report.
+          <Dialog.Description className="mb-5 text-sm text-on-surface-variant/70">
+            Our moderation council will review this report.
           </Dialog.Description>
 
           {done ? (
             <div className="space-y-4">
-              <p className="text-sm text-emerald-400">Report submitted. Thank you.</p>
+              <p className="text-sm italic text-secondary/80">The report has been inscribed. The council will judge.</p>
               <Dialog.Close asChild>
-                <button className="w-full rounded-lg bg-zinc-800 py-2 text-sm text-zinc-200 hover:bg-zinc-700">
-                  Close
+                <button className="w-full bg-surface-container-high py-2.5 text-label-sm font-bold tracking-widest text-on-surface-variant transition-colors hover:bg-surface-container-highest">
+                  CLOSE
                 </button>
               </Dialog.Close>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm text-zinc-300" htmlFor="report-reason">
-                  Reason
+                <label className="text-label-sm text-on-surface-variant/60" htmlFor="report-reason">
+                  VIOLATION
                 </label>
                 <select
                   id="report-reason"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface ghost-border focus:outline-none focus:ring-1 focus:ring-secondary/40 caret-secondary"
                 >
                   {REASONS.map((r) => (
-                    <option key={r} value={r}>
+                    <option key={r} value={r} className="bg-surface-container-lowest">
                       {r}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {error && <p className="text-xs text-red-400">{error}</p>}
+              {error && <p className="text-xs italic text-error/80">{error}</p>}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-1">
                 <Dialog.Close asChild>
                   <button
                     type="button"
-                    className="flex-1 rounded-lg border border-zinc-700 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    className="flex-1 bg-surface-container-high py-2.5 text-label-sm font-bold tracking-widest text-on-surface-variant transition-colors hover:bg-surface-container-highest"
                   >
-                    Cancel
+                    CANCEL
                   </button>
                 </Dialog.Close>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 rounded-lg bg-red-700 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50"
+                  className="flex-1 bg-error-container py-2.5 text-label-sm font-bold tracking-widest text-on-error-container transition-opacity hover:opacity-90 disabled:opacity-40"
                 >
-                  {submitting ? "Submitting…" : "Submit Report"}
+                  {submitting ? "SUBMITTING…" : "REPORT"}
                 </button>
               </div>
             </form>

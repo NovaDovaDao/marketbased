@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { io, type Socket } from "socket.io-client"
 import { MessageInput } from "./MessageInput"
 import { MessageList } from "./MessageList"
+import { NegotiationIdentityPanel } from "./NegotiationIdentityPanel"
+import { OfferActionPanel } from "./OfferActionPanel"
 import { PresenceIndicator } from "./PresenceIndicator"
 import { TypingIndicator } from "./TypingIndicator"
 
@@ -25,8 +27,11 @@ interface TradeRoomChatProps {
   currentUserId: string
   currentUsername: string
   sessionToken: string
+  seller: { id: string; username: string; image: string | null }
+  buyer: { id: string; username: string; image: string | null }
   counterpart: { id: string; username: string; image: string | null }
   listing: { id: string; name: string; baseName: string; rarity: string; price: unknown }
+  offerData: unknown
   initialMessages: ChatMessage[]
 }
 
@@ -36,8 +41,11 @@ export function TradeRoomChat({
   currentUserId,
   currentUsername,
   sessionToken,
+  seller,
+  buyer,
   counterpart,
   listing,
+  offerData,
   initialMessages,
 }: TradeRoomChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
@@ -178,62 +186,88 @@ export function TradeRoomChat({
   }, [roomId])
 
   const isActive = roomStatus === "active"
+  // The current user is the seller if their id matches seller.id
+  const isSeller = currentUserId === seller?.id
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <header className="flex shrink-0 items-center gap-3 border-b border-zinc-800 bg-zinc-900 px-4 py-3">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium text-zinc-100">
-              {listing.name}
-            </span>
-            <span className="shrink-0 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
-              {listing.rarity}
-            </span>
+    // 3-column negotiation altar: identity | chat | offer
+    <div className="grid h-dvh grid-cols-1 lg:grid-cols-[260px_1fr_260px] bg-surface">
+
+      {/* ── LEFT: Identity panel — who are the parties & what is traded ── */}
+      <div className="hidden lg:flex flex-col border-r-0">
+        <NegotiationIdentityPanel
+          counterpart={counterpart}
+          currentUsername={currentUsername}
+          listing={listing}
+          isSeller={isSeller}
+        />
+      </div>
+
+      {/* ── CENTER: The negotiation feed ── */}
+      <div className="flex flex-col h-full min-w-0 overflow-hidden bg-surface">
+        {/* Stone lintel header */}
+        <header className="relative flex shrink-0 items-center gap-4 bg-surface-container-low px-6 py-4">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex items-baseline gap-3">
+              <span className="truncate font-headline text-sm font-bold tracking-editorial text-secondary text-glow-gold">
+                {listing.name}
+              </span>
+              <span className="shrink-0 bg-surface-container-high px-2 py-0.5 text-label-sm text-on-surface-variant/60">
+                {listing.rarity}
+              </span>
+            </div>
+            <p className="text-label-sm text-on-surface-variant/50">
+              TRADE WITH{" "}
+              <span className="text-secondary/70">@{counterpart.username}</span>
+            </p>
           </div>
-          <span className="truncate text-xs text-zinc-500">
-            Trading with{" "}
-            <span className="text-zinc-300">@{counterpart.username}</span>
-          </span>
-        </div>
-        <PresenceIndicator isOnline={counterpartOnline} username={counterpart.username} />
-      </header>
+          <PresenceIndicator isOnline={counterpartOnline} username={counterpart.username} />
+        </header>
 
-      {/* Connection error banner */}
-      {connectionError && (
-        <div className="shrink-0 bg-red-900/50 px-4 py-2 text-center text-xs text-red-300">
-          {connectionError === "AUTH_REQUIRED" || connectionError === "AUTH_INVALID"
-            ? "Session expired. Please refresh the page."
-            : `Connection error: ${connectionError}. Reconnecting…`}
-        </div>
-      )}
+        {/* Connection error — blood-red alert strip */}
+        {connectionError && (
+          <div className="shrink-0 bg-error-container px-4 py-2 text-center text-label-sm text-on-error-container">
+            {connectionError === "AUTH_REQUIRED" || connectionError === "AUTH_INVALID"
+              ? "Session expired — refresh to continue."
+              : `Reconnecting\u2026 ${connectionError}`}
+          </div>
+        )}
 
-      {/* Room closed banner */}
-      {!isActive && (
-        <div className="shrink-0 bg-amber-900/50 px-4 py-2 text-center text-xs text-amber-300">
-          This trade room is closed and read-only.
-        </div>
-      )}
+        {/* Room sealed — gold archive notice */}
+        {!isActive && (
+          <div className="shrink-0 bg-secondary-container/20 px-4 py-2 text-center text-label-sm text-secondary/70">
+            ⸻ This trade room is sealed. Records are read-only. ⸻
+          </div>
+        )}
 
-      {/* Messages */}
-      <MessageList
-        messages={messages}
-        currentUserId={currentUserId}
-        readReceipts={readReceipts}
-        onVisible={markRead}
-      />
+        {/* Message feed */}
+        <MessageList
+          messages={messages}
+          currentUserId={currentUserId}
+          readReceipts={readReceipts}
+          onVisible={markRead}
+        />
 
-      {/* Typing indicator */}
-      <TypingIndicator isTyping={counterpartTyping} username={counterpart.username} />
+        {/* Typing indicator */}
+        <TypingIndicator isTyping={counterpartTyping} username={counterpart.username} />
 
-      {/* Input */}
-      <MessageInput
-        onSend={sendMessage}
-        onTypingStart={sendTypingStart}
-        onTypingStop={sendTypingStop}
-        disabled={!isActive}
-      />
+        {/* Input */}
+        <MessageInput
+          onSend={sendMessage}
+          onTypingStart={sendTypingStart}
+          onTypingStop={sendTypingStop}
+          disabled={!isActive}
+        />
+      </div>
+
+      {/* ── RIGHT: Offer action panel — terms & sigil buttons ── */}
+      <div className="hidden lg:flex flex-col border-l-0">
+        <OfferActionPanel
+          roomStatus={roomStatus}
+          listing={listing}
+          offerData={offerData}
+        />
+      </div>
     </div>
   )
 }

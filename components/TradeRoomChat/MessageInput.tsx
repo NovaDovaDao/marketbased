@@ -71,43 +71,87 @@ export function MessageInput({ onSend, onTypingStart, onTypingStop, disabled = f
   const remaining = MAX_CHARS - value.length
   const isOverLimit = remaining < 0
   const isWarning = remaining >= 0 && remaining < MAX_CHARS - WARN_CHARS
+  const canSend = !disabled && !isOverLimit && value.trim().length > 0
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="shrink-0 border-t border-zinc-800 bg-zinc-900 px-4 py-3"
+      className="shrink-0 bg-surface-container-low px-5 py-4"
     >
-      <div className="flex items-end gap-3">
-        <div className="relative flex-1">
-          <textarea
-            className="w-full resize-none rounded-xl border border-zinc-700 bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder={disabled ? "This trade room is closed." : "type a message… (Enter to send, Shift+Enter for newline)"}
-            value={value}
-            rows={1}
-            maxLength={MAX_CHARS + 1} // let them type over to see the counter turn red
-            disabled={disabled}
-            onChange={(e) => {
-              setValue(e.target.value)
-              handleTyping()
-            }}
-            onKeyDown={handleKeyDown}
-            style={{ maxHeight: "8rem", overflowY: "auto" }}
-          />
-          {/* Character counter — only shown when approaching/at limit */}
-          {(isWarning || isOverLimit) && (
-            <span
-              className={`absolute right-2 bottom-2 text-[10px] tabular-nums ${isOverLimit ? "text-red-400" : "text-amber-400"}`}
-            >
-              {remaining}
-            </span>
-          )}
+      {/* Character counter — shown above input when nearing limit */}
+      {(isWarning || isOverLimit) && (
+        <div className="mb-1 flex justify-end px-1">
+          <span
+            className={`text-label-sm tabular-nums ${isOverLimit ? "text-error" : "text-secondary/60"}`}
+          >
+            {remaining} remaining
+          </span>
         </div>
+      )}
+
+      {/* Recessed inscription vessel */}
+      <div className="flex items-end bg-surface-container-lowest socket-shadow transition-shadow duration-300 focus-within:ring-1 focus-within:ring-secondary/50">
+        <textarea
+          className="flex-1 resize-none bg-transparent px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none caret-secondary font-newsreader leading-relaxed disabled:cursor-not-allowed disabled:opacity-40"
+          placeholder={
+            disabled
+              ? "This trade room is sealed."
+              : "Inscribe your message\u2026 (Enter to send, Shift+Enter for newline)"
+          }
+          value={value}
+          rows={1}
+          maxLength={MAX_CHARS + 1}
+          disabled={disabled}
+          onChange={(e) => {
+            setValue(e.target.value)
+            handleTyping()
+          }}
+          onKeyDown={handleKeyDown}
+          style={{ maxHeight: "8rem", overflowY: "auto" }}
+        />
+
+        {/* Sigil send button — rune activation glyph */}
         <button
           type="submit"
-          disabled={disabled || isOverLimit || value.trim().length === 0}
-          className="shrink-0 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={!canSend}
+          aria-label="Send inscription"
+          className="group relative shrink-0 self-stretch w-14 flex items-center justify-center bg-primary-container transition-all duration-300 hover:bg-on-primary-container/20 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          Send
+          {/* Hover glow layer */}
+          <span
+            className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-disabled:opacity-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(146,6,3,0.6) 0%, rgba(49,0,0,0.9) 100%)",
+            }}
+            aria-hidden="true"
+          />
+          {/* Rune sigil — angular directional glyph */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="relative h-5 w-5 transition-colors duration-300 group-hover:text-primary text-primary/60 group-disabled:text-primary/20"
+            aria-hidden="true"
+          >
+            {/* Angular rune: upward-right angular arrow */}
+            <path
+              d="M4 20 L12 4 L20 20"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="square"
+              strokeLinejoin="miter"
+              fill="none"
+            />
+            <path
+              d="M8 13 L12 4 L16 13"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="square"
+              fill="none"
+              opacity="0.5"
+            />
+          </svg>
         </button>
       </div>
     </form>

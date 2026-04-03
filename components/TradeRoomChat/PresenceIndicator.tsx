@@ -6,14 +6,20 @@ interface PresenceIndicatorProps {
 export function PresenceIndicator({ isOnline, username }: PresenceIndicatorProps) {
   return (
     <div
-      className="flex shrink-0 items-center gap-1.5"
+      className="flex shrink-0 items-center gap-2.5"
       title={isOnline ? `${username} is online` : `${username} is offline`}
       aria-label={isOnline ? "Online" : "Offline"}
     >
       <span
-        className={`h-2 w-2 rounded-full transition-colors duration-500 ${isOnline ? "bg-emerald-400 shadow-[0_0_6px_theme(colors.emerald.400)]" : "bg-zinc-600"}`}
+        className={`h-2 w-2 shrink-0 transition-colors duration-500 ${isOnline
+            ? "bg-secondary animate-ember-pulse"
+            : "bg-outline-variant/30"
+          }`}
       />
-      <span className="text-xs text-zinc-500">{isOnline ? "Online" : "Offline"}</span>
+      <span className={`text-label-sm transition-colors duration-500 ${isOnline ? "text-secondary/70" : "text-on-surface-variant/30"
+        }`}>
+        {isOnline ? "ONLINE" : "OFFLINE"}
+      </span>
     </div>
   )
 }

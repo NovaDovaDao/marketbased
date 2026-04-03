@@ -28,22 +28,24 @@ export function TypingIndicator({ isTyping, username }: TypingIndicatorProps) {
   if (!visible) return null
 
   return (
-    <div className="shrink-0 flex items-center gap-1.5 px-4 pb-1 text-xs text-zinc-500">
-      <span>@{username} is typing</span>
-      <span className="flex gap-0.5" aria-hidden="true">
-        <Dot delay="0ms" />
-        <Dot delay="160ms" />
-        <Dot delay="320ms" />
+    <div className="shrink-0 flex items-center gap-3 px-6 pb-2">
+      <span className="text-label-sm text-on-surface-variant/40 tracking-label">
+        @{username} scribing…
+      </span>
+      <span className="flex items-center gap-1" aria-hidden="true">
+        <InkBead delay="0ms" />
+        <InkBead delay="220ms" />
+        <InkBead delay="440ms" />
       </span>
     </div>
   )
 }
 
-function Dot({ delay }: { delay: string }) {
+function InkBead({ delay }: { delay: string }) {
   return (
     <span
-      className="inline-block h-1 w-1 animate-bounce rounded-full bg-zinc-500"
-      style={{ animationDelay: delay, animationDuration: "900ms" }}
+      className="inline-block h-0.5 w-4 bg-secondary/60 animate-ink-bead"
+      style={{ animationDelay: delay }}
     />
   )
 }

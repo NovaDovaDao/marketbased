@@ -177,6 +177,67 @@ html, body {
     outline: 1px solid rgba(68, 71, 72, 0.15);
   }
 
+  /* ── Stone Settle: messages appear like stones being placed on an altar ── */
+  @keyframes stone-settle {
+    0%   { opacity: 0; transform: translateY(10px); }
+    60%  { opacity: 1; transform: translateY(-2px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .animate-stone-settle {
+    animation: stone-settle 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* ── Ember Pulse: gold glow oscillation for online presence dot ── */
+  @keyframes ember-pulse {
+    0%, 100% {
+      box-shadow: 0 0 4px 1px rgba(247, 189, 72, 0.6);
+      opacity: 1;
+    }
+    50% {
+      box-shadow: 0 0 10px 3px rgba(247, 189, 72, 0.9);
+      opacity: 0.85;
+    }
+  }
+  .animate-ember-pulse {
+    animation: ember-pulse 2.4s ease-in-out infinite;
+  }
+
+  /* ── Torch Flicker: ambient light oscillation for panel accents ── */
+  @keyframes torch-flicker {
+    0%, 100% { opacity: 1; }
+    20%       { opacity: 0.88; }
+    40%       { opacity: 0.96; }
+    60%       { opacity: 0.82; }
+    80%       { opacity: 0.94; }
+  }
+  .animate-torch-flicker {
+    animation: torch-flicker 4.2s ease-in-out infinite;
+  }
+
+  /* ── Ink Bead: typing indicator bars fill horizontally like ink spreading ── */
+  @keyframes ink-bead {
+    0%        { transform: scaleX(0.1); opacity: 0.2; }
+    40%       { transform: scaleX(1);   opacity: 1; }
+    80%, 100% { transform: scaleX(0.1); opacity: 0.2; }
+  }
+  .animate-ink-bead {
+    animation: ink-bead 1.2s ease-in-out infinite;
+    transform-origin: left center;
+  }
+
+  /* ── Ember Notification: red pulse for badge ── */
+  @keyframes ember-notification {
+    0%, 100% {
+      box-shadow: 0 0 4px 1px rgba(255, 180, 168, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 12px 4px rgba(255, 180, 168, 0.8);
+    }
+  }
+  .animate-ember-notification {
+    animation: ember-notification 1.8s ease-in-out infinite;
+  }
+
   /* ── Reduced motion: respect user preference ── */
   @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {

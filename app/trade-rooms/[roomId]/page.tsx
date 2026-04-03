@@ -32,6 +32,7 @@ export default async function TradeRoomPage({ params }: PageProps) {
 
   if (!room) notFound()
   if (room.sellerId !== userId && room.buyerId !== userId) notFound()
+  if (!room.seller || !room.buyer || !room.offer?.listing) notFound()
 
   // Initial message page — server-fetched for instant render
   const initialMessages = await prisma.message.findMany({
@@ -60,8 +61,11 @@ export default async function TradeRoomPage({ params }: PageProps) {
         currentUserId={userId}
         currentUsername={session.user.name}
         sessionToken={session.session.token}
+        seller={room.seller}
+        buyer={room.buyer}
         counterpart={counterpartUser}
         listing={room.offer.listing}
+        offerData={room.offer.offerData}
         initialMessages={initialMessages.map((m) => ({
           ...m,
           content: m.isDeleted ? "[Message deleted]" : m.content,
