@@ -1,5 +1,5 @@
-import { checkRateLimit } from "../adapters/redis.js";
 import { randomUUID } from "node:crypto";
+import { checkRateLimit } from "../adapters/redis.js";
 import { pool } from "../db.js";
 import type { ChatMessage, ServerInstance, ServerSocket } from "../types.js";
 
