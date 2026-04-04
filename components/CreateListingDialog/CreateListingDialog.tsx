@@ -81,6 +81,7 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
   const [rarity, setRarity] = useState("Unique")
   const [priceType, setPriceType] = useState<"usdc" | "eth">("usdc")
   const [priceValue, setPriceValue] = useState("")
+  const [spaceDustPrice, setSpaceDustPrice] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -113,6 +114,7 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
     setName("")
     setRarity("Unique")
     setPriceValue("")
+    setSpaceDustPrice("")
     setError(null)
   }
 
@@ -137,6 +139,7 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
           baseName: selectedItem ? selectedItem.name : name,
           rarity: selectedItem ? selectedItem.rarity : rarity,
           price,
+          ...(spaceDustPrice.trim() ? { spaceDustPrice: parseInt(spaceDustPrice, 10) } : {}),
         }),
       })
 
@@ -311,40 +314,29 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
 
             {/* ── Price ── */}
             <div className="flex flex-col gap-2">
-              <label className={labelCls}>Asking price</label>
-              <div className="flex gap-2">
-                {(["usdc", "eth"] as const).map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setPriceType(t)}
-                    className={`px-4 py-2 font-headline text-xs font-bold uppercase tracking-widest transition-colors ${priceType === t
-                        ? "bg-secondary text-[#0e0e0e]"
-                        : "border border-stone-700 text-on-surface-variant/50 hover:border-stone-500"
-                      }`}
-                  >
-                    {t.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant/40">
-                  {priceType === "usdc" ? "$" : "Ξ"}
-                </span>
-                <input
-                  type="number"
-                  min="0.000001"
-                  step="any"
-                  required
-                  value={priceValue}
-                  onChange={(e) => setPriceValue(e.target.value)}
-                  placeholder="0.00"
-                  className={`${inputCls} pl-7`}
-                />
-              </div>
             </div>
 
             {error && <p className="text-xs text-red-400/80">{error}</p>}
+
+            {/* ── Space Dust price (optional) ── */}
+            <div className="flex flex-col gap-1.5 border-t border-stone-800/60 pt-4">
+              <label className={labelCls}>Space Dust price</label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant/40">✨</span>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={spaceDustPrice}
+                  onChange={(e) => setSpaceDustPrice(e.target.value)}
+                  placeholder="e.g. 2500"
+                  className={`${inputCls} pl-8`}
+                />
+              </div>
+              <p className="text-[10px] text-on-surface-variant/30">
+                Buyers can purchase instantly with Space Dust. Leave blank for offer-only.
+              </p>
+            </div>
 
             <div className="flex items-center justify-end gap-3 border-t border-stone-800 pt-4">
               <Dialog.Close className="text-xs uppercase tracking-widest text-on-surface-variant/40 transition-colors hover:text-on-surface-variant/70">

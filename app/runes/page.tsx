@@ -94,21 +94,21 @@ export default async function RunesPage({ searchParams }: PageProps) {
       {/* ═══════════════════════════════════════════════════════
           SELL BANNER — CTA at bottom
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-surface py-20" aria-label="List your runes">
+      <section className="bg-surface py-20" aria-label="Get Space Dust">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-label-sm mb-3 text-secondary">The Great Ledger</p>
               <h2 className="text-headline-lg font-headline font-extrabold italic text-on-surface">
-                List Your Runes
+                Need More Space Dust?
               </h2>
               <p className="mt-3 max-w-lg font-body text-sm italic text-on-surface-variant/55 leading-relaxed">
-                Every trade sealed in stone. Connect your account, choose your runes, set your price — and let the market find you.
+                Every rune costs 1,000 SD. Top up your balance in the store and come back to claim yours.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <a
-                href="#"
+                href="/store"
                 className="
                   blood-gradient inline-flex min-h-13 min-w-11
                   items-center justify-center px-10 py-4
@@ -116,18 +116,7 @@ export default async function RunesPage({ searchParams }: PageProps) {
                   shadow-blood transition-all hover:opacity-90 active:scale-[0.98]
                 "
               >
-                Start Listing
-              </a>
-              <a
-                href="#"
-                className="
-                  inline-flex min-h-13 min-w-11
-                  items-center justify-center border border-secondary/40 px-10 py-4
-                  text-label-md font-bold uppercase tracking-widest text-secondary
-                  transition-all hover:bg-secondary/5 hover:border-secondary/70
-                "
-              >
-                View Guide
+                Visit Store
               </a>
             </div>
           </div>

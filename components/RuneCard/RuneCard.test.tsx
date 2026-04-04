@@ -1,7 +1,11 @@
 import type { Rune } from "@/types/rune"
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import RuneCard from "./RuneCard"
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}))
 
 const lowRune: Rune = {
   id: 1,
@@ -42,24 +46,19 @@ describe("RuneCard", () => {
     expect(screen.getByText("Rare")).toBeTruthy()
   })
 
-  it("renders formatted price when provided", () => {
-    render(<RuneCard rune={lowRune} price={500} />)
-    expect(screen.getByText(/5/)).toBeTruthy()
-    expect(screen.getByText("Gold")).toBeTruthy()
-  })
-
-  it("renders unlisted state when no price given", () => {
+  it("renders SD price", () => {
     render(<RuneCard rune={lowRune} />)
-    expect(screen.getByText(/Unlisted/i)).toBeTruthy()
+    expect(screen.getByText("1,000")).toBeTruthy()
+    expect(screen.getByText("SD")).toBeTruthy()
   })
 
-  it("has an accessible article label", () => {
+  it("renders a buy button", () => {
     render(<RuneCard rune={lowRune} />)
-    expect(screen.getByRole("article", { name: /El rune/i })).toBeTruthy()
+    expect(screen.getByRole("button", { name: /Buy El for 1,000 Space Dust/i })).toBeTruthy()
   })
 
-  it("has a list button with accessible label", () => {
+  it("renders buy button for high tier rune", () => {
     render(<RuneCard rune={highRune} />)
-    expect(screen.getByRole("button", { name: /List Zod/i })).toBeTruthy()
+    expect(screen.getByRole("button", { name: /Buy Zod for 1,000 Space Dust/i })).toBeTruthy()
   })
 })

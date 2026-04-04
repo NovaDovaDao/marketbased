@@ -34,6 +34,9 @@ export const env = createEnv({
     RECEIVING_ADDRESS: z.string().regex(ethAddressRegex, "Must be a valid Ethereum address").optional(),
     // Vercel Cron
     CRON_SECRET: z.string().min(16).optional(),
+    // Discord Bot notifications
+    DISCORD_BOT_TOKEN: z.string().min(1).optional(),
+    DISCORD_NOTIFICATION_CHANNEL_ID: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_MERCHANT_ADDRESS: z
@@ -71,6 +74,8 @@ export const env = createEnv({
     BASE_RPC_URL: process.env.BASE_RPC_URL,
     RECEIVING_ADDRESS: process.env.RECEIVING_ADDRESS,
     CRON_SECRET: process.env.CRON_SECRET,
+    DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
+    DISCORD_NOTIFICATION_CHANNEL_ID: process.env.DISCORD_NOTIFICATION_CHANNEL_ID,
     NEXT_PUBLIC_MERCHANT_ADDRESS: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
     NEXT_PUBLIC_SOCKET_SERVER_URL: process.env.NEXT_PUBLIC_SOCKET_SERVER_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,

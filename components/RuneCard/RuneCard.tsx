@@ -1,4 +1,5 @@
-import { formatPrice, TIER_LABELS, type PriceCents, type Rune } from "@/types/rune"
+import BuyRuneButton from "@/components/BuyRuneButton/BuyRuneButton"
+import { TIER_LABELS, type Rune } from "@/types/rune"
 import { cva, type VariantProps } from "class-variance-authority"
 import Image from "next/image"
 import { twMerge } from "tailwind-merge"
@@ -58,13 +59,12 @@ export type RuneCardVariants = VariantProps<typeof runeCard>
 
 export interface RuneCardProps extends RuneCardVariants {
   rune: Rune
-  price?: PriceCents
   className?: string
 }
 
 // ── Component (Server Component — no "use client" needed) ────────────────────
 
-export default function RuneCard({ rune, price, className }: RuneCardProps) {
+export default function RuneCard({ rune, className }: RuneCardProps) {
   const { name, level, tier, image } = rune
 
   return (
@@ -108,28 +108,12 @@ export default function RuneCard({ rune, price, className }: RuneCardProps) {
         </p>
 
         {/* Price row */}
-        <div className="mt-3 flex items-center justify-between border-t border-outline-variant/10 pt-3">
-          {price !== undefined ? (
-            <p className="font-headline text-base font-semibold text-secondary">
-              {formatPrice(price)}{" "}
-              <span className="text-xs text-on-surface-variant/40">Gold</span>
-            </p>
-          ) : (
-            <p className="text-label-sm text-on-surface-variant/35">— Unlisted —</p>
-          )}
-
-          <button
-            className="
-              min-h-9 px-4 py-2
-              bg-surface-container-highest
-              text-label-sm font-bold uppercase tracking-widest
-              text-on-surface-variant transition-colors
-              hover:bg-secondary hover:text-on-secondary
-            "
-            aria-label={`List ${name} for sale`}
-          >
-            List
-          </button>
+        <div className="mt-3 flex flex-col gap-2 border-t border-outline-variant/10 pt-3">
+          <p className="font-headline text-base font-semibold text-secondary">
+            1,000{" "}
+            <span className="text-xs text-on-surface-variant/40">SD</span>
+          </p>
+          <BuyRuneButton runeId={rune.id} runeName={name} />
         </div>
       </div>
     </article>

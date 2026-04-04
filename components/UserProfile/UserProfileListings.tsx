@@ -48,7 +48,7 @@ export default function UserProfileListings({ listings, runes }: UserProfileList
             if (!rune) return null
             return (
               <li key={listing.runeId}>
-                <RuneCard rune={rune} price={listing.priceCents} />
+                <RuneCard rune={rune} />
               </li>
             )
           })}

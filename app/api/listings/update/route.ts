@@ -19,6 +19,7 @@ const createListingSchema = z.object({
   baseName: z.string().min(1).max(200),
   rarity: z.string().min(1).max(50),
   price: priceSchema,
+  spaceDustPrice: z.number().int().positive().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { id, contentId, name, baseName, rarity, price } = parsed.data;
+  const { id, contentId, name, baseName, rarity, price, spaceDustPrice } = parsed.data;
   const sellerId = session.user.id;
 
   let listing;
@@ -43,11 +44,11 @@ export async function POST(req: NextRequest) {
     // Update existing listing — ownership check is enforced in where clause
     listing = await prisma.listing.update({
       where: { id, sellerId },
-      data: { price },
+      data: { price, spaceDustPrice: spaceDustPrice ?? null },
     });
   } else {
     listing = await prisma.listing.create({
-      data: { contentId, name, baseName, rarity, price, sellerId },
+      data: { contentId, name, baseName, rarity, price, sellerId, spaceDustPrice: spaceDustPrice ?? null },
     });
   }
 

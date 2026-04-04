@@ -10,7 +10,6 @@ const meta: Meta<typeof RuneCard> = {
   },
   argTypes: {
     tier: { control: "select", options: ["low", "mid", "high"] },
-    price: { control: "number" },
   },
 }
 
@@ -43,15 +42,15 @@ const zodRune = {
 }
 
 export const Common: Story = {
-  args: { rune: elRune, price: 500 },
+  args: { rune: elRune },
 }
 
 export const Uncommon: Story = {
-  args: { rune: istRune, price: 85000 },
+  args: { rune: istRune },
 }
 
 export const Rare: Story = {
-  args: { rune: zodRune, price: 2500000 },
+  args: { rune: zodRune },
 }
 
 export const Unlisted: Story = {
@@ -64,9 +63,9 @@ export const AllTiers: Story = {
       className="grid grid-cols-3 gap-6"
       style={{ fontFamily: "Newsreader, serif", background: "#131313", padding: 24 }}
     >
-      <RuneCard rune={elRune} price={500} />
-      <RuneCard rune={istRune} price={85000} />
-      <RuneCard rune={zodRune} price={2500000} />
+      <RuneCard rune={elRune} />
+      <RuneCard rune={istRune} />
+      <RuneCard rune={zodRune} />
     </div>
   ),
 }

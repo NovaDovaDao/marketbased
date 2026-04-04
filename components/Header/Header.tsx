@@ -160,6 +160,12 @@ export default function Header() {
                 >
                   {displayName}
                 </a>
+                <a
+                  href="/me/purchases"
+                  className="text-label-md text-on-surface-variant/70 transition-colors duration-150 hover:text-secondary"
+                >
+                  Purchases
+                </a>
                 <button
                   onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/" } } })}
                   className="text-label-md text-on-surface-variant/40 transition-colors duration-150 hover:text-secondary"
@@ -275,6 +281,13 @@ export default function Header() {
                   className="text-label-md text-on-surface-variant/70 transition-colors hover:text-secondary"
                 >
                   {displayName}
+                </a>
+                <a
+                  href="/me/purchases"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-label-md text-on-surface-variant/70 transition-colors hover:text-secondary"
+                >
+                  Purchases
                 </a>
                 <button
                   onClick={() => {

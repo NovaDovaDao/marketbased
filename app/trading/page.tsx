@@ -184,7 +184,14 @@ export default async function TradingPage({ searchParams }: PageProps) {
     where: { status: "active" },
     orderBy: { createdAt: "desc" },
     take: 20,
-    include: { seller: { select: { id: true, username: true } } },
+    select: {
+      id: true,
+      name: true,
+      rarity: true,
+      price: true,
+      spaceDustPrice: true,
+      seller: { select: { id: true, username: true } },
+    },
   })
 
   // Build a URL that replaces the page param
@@ -273,6 +280,7 @@ export default async function TradingPage({ searchParams }: PageProps) {
                       priceDisplay={display}
                       priceUsdCents={usdCents}
                       sellerUsername={listing.seller.username ?? ""}
+                      spaceDustPrice={listing.spaceDustPrice ?? null}
                     />
                   )
                 })}

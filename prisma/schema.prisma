@@ -80,7 +80,9 @@ model User {
   // Space Dust balance (in-app currency)
   spaceDust Int @default(0)
 
-  purchases Purchase[]
+  purchases       Purchase[]
+  buyerPurchases  ItemPurchase[] @relation("BuyerItemPurchases")
+  sellerPurchases ItemPurchase[] @relation("SellerItemPurchases")
 
   @@map("user")
 }
@@ -99,10 +101,14 @@ model Listing {
 
   price Json // rune or crypto pricing
 
+  // Optional Space Dust price for direct SD purchases
+  spaceDustPrice Int?
+
   status String @default("active")
 
-  offers       Offer[]
-  transactions Transaction[]
+  offers        Offer[]
+  transactions  Transaction[]
+  itemPurchases ItemPurchase[]
 
   createdAt DateTime @default(now())
 
@@ -137,8 +143,9 @@ model Offer {
 model TradeRoom {
   id String @id @default(cuid())
 
-  offerId String @unique
-  offer   Offer  @relation(fields: [offerId], references: [id])
+  // Optional: null for direct Space Dust purchases (no offer negotiation)
+  offerId String? @unique
+  offer   Offer?  @relation(fields: [offerId], references: [id])
 
   sellerId String
   seller   User   @relation("SellerRooms", fields: [sellerId], references: [id])
@@ -283,4 +290,24 @@ model Purchase {
   @@index([status])
   @@index([provider, status])
   @@map("purchase")
+}
+
+// Records every item purchased with Space Dust (peer-to-peer or catalog)
+model ItemPurchase {
+  id              String   @id @default(cuid())
+  buyerId         String
+  buyer           User     @relation("BuyerItemPurchases", fields: [buyerId], references: [id])
+  sellerId        String?
+  seller          User?    @relation("SellerItemPurchases", fields: [sellerId], references: [id])
+  listingId       String?
+  listing         Listing? @relation(fields: [listingId], references: [id])
+  runeId          Int? // for rune vault catalog purchases
+  itemName        String
+  spaceDustAmount Int
+  tradeRoomId     String? // linked room for peer-to-peer purchases
+  createdAt       DateTime @default(now())
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("item_purchase")
 }

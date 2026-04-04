@@ -1,5 +1,6 @@
 "use client"
 
+import { BuyWithSpaceDustButton } from "@/components/BuyWithSpaceDustButton/BuyWithSpaceDustButton"
 import { MakeOfferDialog } from "@/components/MakeOfferDialog/MakeOfferDialog"
 
 interface DbListingCardProps {
@@ -10,6 +11,7 @@ interface DbListingCardProps {
   priceDisplay: string
   priceUsdCents: number | undefined
   sellerUsername: string
+  spaceDustPrice: number | null
 }
 
 export function DbListingCard({
@@ -20,6 +22,7 @@ export function DbListingCard({
   priceDisplay,
   priceUsdCents,
   sellerUsername,
+  spaceDustPrice,
 }: DbListingCardProps) {
   return (
     <div className="flex flex-col gap-3 border border-stone-800/60 bg-surface-container-low p-4 transition-colors hover:bg-surface-container">
@@ -47,8 +50,8 @@ export function DbListingCard({
         </div>
       </div>
 
-      {/* Price + seller + offer */}
-      <div className="flex items-end justify-between">
+      {/* Price + seller + actions */}
+      <div className="flex items-end justify-between gap-2">
         <div>
           <p
             className="font-headline text-base font-bold text-secondary"
@@ -61,19 +64,28 @@ export function DbListingCard({
           </p>
         </div>
 
-        <MakeOfferDialog
-          listingId={id}
-          listingName={name}
-          askingUsdCents={priceUsdCents}
-          trigger={
-            <button
-              className="px-3 py-1.5 font-headline text-[10px] font-bold uppercase tracking-widest transition-opacity hover:opacity-85"
-              style={{ background: "linear-gradient(135deg, #f7bd48 0%, #e0a830 100%)", color: "#0e0e0e" }}
-            >
-              Offer
-            </button>
-          }
-        />
+        <div className="flex flex-col items-end gap-1.5">
+          {spaceDustPrice !== null && (
+            <BuyWithSpaceDustButton
+              listingId={id}
+              itemName={name}
+              spaceDustPrice={spaceDustPrice}
+            />
+          )}
+          <MakeOfferDialog
+            listingId={id}
+            listingName={name}
+            askingUsdCents={priceUsdCents}
+            trigger={
+              <button
+                className="px-3 py-1.5 font-headline text-[10px] font-bold uppercase tracking-widest transition-opacity hover:opacity-85"
+                style={{ background: "linear-gradient(135deg, #f7bd48 0%, #e0a830 100%)", color: "#0e0e0e" }}
+              >
+                Offer
+              </button>
+            }
+          />
+        </div>
       </div>
     </div>
   )
