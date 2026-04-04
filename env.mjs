@@ -21,6 +21,19 @@ export const env = createEnv({
     UPSTASH_REDIS_TOKEN: z.string().min(1).optional(),
     CHAT_SERVICE_URL: z.string().url().optional(),
     CHAT_SERVICE_SECRET: z.string().min(1).optional(),
+    // Stripe
+    STRIPE_SECRET_KEY: z.string().min(1).optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+    // PayPal
+    PAYPAL_CLIENT_ID: z.string().min(1).optional(),
+    PAYPAL_CLIENT_SECRET: z.string().min(1).optional(),
+    PAYPAL_WEBHOOK_ID: z.string().min(1).optional(),
+    PAYPAL_BASE_URL: z.string().url().optional(),
+    // Base chain
+    BASE_RPC_URL: z.string().url().optional(),
+    RECEIVING_ADDRESS: z.string().regex(ethAddressRegex, "Must be a valid Ethereum address").optional(),
+    // Vercel Cron
+    CRON_SECRET: z.string().min(16).optional(),
   },
   client: {
     NEXT_PUBLIC_MERCHANT_ADDRESS: z
@@ -28,6 +41,12 @@ export const env = createEnv({
       .regex(ethAddressRegex, "Must be a valid Ethereum address")
       .optional(),
     NEXT_PUBLIC_SOCKET_SERVER_URL: z.string().url().optional(),
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
+    NEXT_PUBLIC_RECEIVING_ADDRESS: z
+      .string()
+      .regex(ethAddressRegex, "Must be a valid Ethereum address")
+      .optional(),
+    NEXT_PUBLIC_PAYPAL_CLIENT_ID: z.string().min(1).optional(),
   },
   runtimeEnv: {
     ANALYZE: process.env.ANALYZE,
@@ -43,7 +62,19 @@ export const env = createEnv({
     UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN,
     CHAT_SERVICE_URL: process.env.CHAT_SERVICE_URL,
     CHAT_SERVICE_SECRET: process.env.CHAT_SERVICE_SECRET,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
+    PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
+    PAYPAL_WEBHOOK_ID: process.env.PAYPAL_WEBHOOK_ID,
+    PAYPAL_BASE_URL: process.env.PAYPAL_BASE_URL,
+    BASE_RPC_URL: process.env.BASE_RPC_URL,
+    RECEIVING_ADDRESS: process.env.RECEIVING_ADDRESS,
+    CRON_SECRET: process.env.CRON_SECRET,
     NEXT_PUBLIC_MERCHANT_ADDRESS: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
     NEXT_PUBLIC_SOCKET_SERVER_URL: process.env.NEXT_PUBLIC_SOCKET_SERVER_URL,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_RECEIVING_ADDRESS: process.env.NEXT_PUBLIC_RECEIVING_ADDRESS,
+    NEXT_PUBLIC_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
   },
 })

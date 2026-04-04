@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 const navLinks = [
   { label: "Runes", href: "/runes" },
   { label: "Trading", href: "/trading" },
+  { label: "Shop", href: "/store" },
   { label: "Leaderboard", href: "#" },
 ]
 
@@ -17,6 +18,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [spaceDust, setSpaceDust] = useState<number | null>(null)
   const { data: session } = authClient.useSession()
   const sessionUser = session?.user as SessionUser | undefined
   const profileHref = sessionUser?.username ? `/profile/${sessionUser.username}` : "/me"
@@ -33,22 +35,40 @@ export default function Header() {
     }
   }
 
+  const fetchBalance = async () => {
+    try {
+      const res = await fetch("/api/me/balance")
+      if (!res.ok) return
+      const data = (await res.json()) as { spaceDust: number }
+      setSpaceDust(data.spaceDust)
+    } catch {
+      // ignore
+    }
+  }
+
   // Poll for unread count when authenticated
   useEffect(() => {
     if (!sessionUser) {
       setUnreadCount(0)
+      setSpaceDust(null)
       return
     }
     void fetchUnread()
+    void fetchBalance()
     const interval = setInterval(() => { void fetchUnread() }, 30_000)
+    const balanceInterval = setInterval(() => { void fetchBalance() }, 60_000)
     const onFocus = () => { void fetchUnread() }
     const onNewRoom = () => { void fetchUnread() }
+    const onBalanceUpdate = () => { void fetchBalance() }
     window.addEventListener("focus", onFocus)
     window.addEventListener("trade-room-unread-updated", onNewRoom)
+    window.addEventListener("space-dust-updated", onBalanceUpdate)
     return () => {
       clearInterval(interval)
+      clearInterval(balanceInterval)
       window.removeEventListener("focus", onFocus)
       window.removeEventListener("trade-room-unread-updated", onNewRoom)
+      window.removeEventListener("space-dust-updated", onBalanceUpdate)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionUser?.id])
@@ -99,6 +119,16 @@ export default function Header() {
           <div className="hidden items-center gap-4 md:flex">
             {session ? (
               <>
+                {/* Space Dust balance */}
+                {spaceDust !== null && (
+                  <a
+                    href="/store"
+                    className="flex items-center gap-1.5 rounded border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300 transition-colors hover:bg-amber-400/20"
+                    aria-label="Space Dust balance — buy more"
+                  >
+                    ✨ {spaceDust.toLocaleString()} sd
+                  </a>
+                )}
                 {/* Messages icon with unread badge */}
                 <a
                   href="/trade-rooms"
@@ -217,6 +247,15 @@ export default function Header() {
           <div className="px-6 pt-2 flex flex-col gap-4">
             {session ? (
               <>
+                {spaceDust !== null && (
+                  <a
+                    href="/store"
+                    onClick={() => setMenuOpen(false)}
+                    className="inline-flex items-center gap-2 rounded border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-400/20"
+                  >
+                    ✨ {spaceDust.toLocaleString()} Space Dust — Buy More
+                  </a>
+                )}
                 <CreateListingDialog
                   trigger={
                     <button

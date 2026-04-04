@@ -77,6 +77,11 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  // Space Dust balance (in-app currency)
+  spaceDust Int @default(0)
+
+  purchases Purchase[]
+
   @@map("user")
 }
 
@@ -260,4 +265,22 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Purchase {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amountUsd   Int // in cents, e.g. 1000 = $10.00
+  spaceDust   Int
+  provider    String // "stripe" | "paypal" | "base"
+  providerRef String? // Stripe session ID, PayPal order ID, or txHash
+  status      String   @default("pending") // "pending" | "completed" | "failed"
+  createdAt   DateTime @default(now())
+
+  @@unique([providerRef])
+  @@index([userId])
+  @@index([status])
+  @@index([provider, status])
+  @@map("purchase")
 }

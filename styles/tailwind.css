@@ -245,5 +245,140 @@ html, body {
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* ─────────────────────────────────────────────────────────
+     Space Dust Store — Cosmic animation keyframes
+     ───────────────────────────────────────────────────────── */
+
+  /* Shimmer: sweeps a gradient across text/surfaces */
+  @keyframes shimmer {
+    0%   { background-position: 150% center; }
+    100% { background-position: -150% center; }
+  }
+  .animate-shimmer {
+    animation: shimmer 4s linear infinite;
+    background-size: 250% auto;
+  }
+
+  /* Glow pulse: rhythmic box-shadow swell for badges */
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.55),
+                  0 0 14px rgba(245, 158, 11, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.9),
+                  0 0 32px rgba(245, 158, 11, 0.5),
+                  0 0 56px rgba(245, 158, 11, 0.15);
+    }
+  }
+  .animate-glow-pulse {
+    animation: glow-pulse 2.2s ease-in-out infinite;
+  }
+
+  /* Glow pulse cyan: for Base/crypto accents */
+  @keyframes glow-pulse-cyan {
+    0%, 100% {
+      box-shadow: 0 0 6px rgba(34, 211, 238, 0.55),
+                  0 0 14px rgba(34, 211, 238, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.9),
+                  0 0 32px rgba(34, 211, 238, 0.5),
+                  0 0 56px rgba(34, 211, 238, 0.15);
+    }
+  }
+  .animate-glow-pulse-cyan {
+    animation: glow-pulse-cyan 2.2s ease-in-out infinite;
+  }
+
+  /* Glow pulse purple: for Stripe accents */
+  @keyframes gπlow-pulse-purple {
+    0%, 100% {
+      box-shadow: 0 0 8px rgba(124, 58, 237, 0.55),
+                  0 0 20px rgba(124, 58, 237, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 18px rgba(124, 58, 237, 0.9),
+                  0 0 40px rgba(124, 58, 237, 0.5),
+                  0 0 64px rgba(124, 58, 237, 0.15);
+    }
+  }
+  .animate-glow-pulse-purple {
+    animation: glow-pulse-purple 2.2s ease-in-out infinite;
+  }
+
+  /* Float: gentle vertical drift for decorative elements */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-7px); }
+  }
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
+  }
+
+  /* Star drift: stars moving upward and fading */
+  @keyframes star-drift {
+    0%   { transform: translateY(0); opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 0.8; }
+    100% { transform: translateY(-110vh); opacity: 0; }
+  }
+  .animate-star-drift {
+    animation: star-drift linear infinite;
+  }
+
+  /* Success burst: confirmation panel mount animation */
+  @keyframes success-burst {
+    0%   { transform: scale(0.88); opacity: 0; }
+    55%  { transform: scale(1.04); opacity: 1; }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  .animate-success-burst {
+    animation: success-burst 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Scan line: diagnostic horizontal sweep */
+  @keyframes scan-line {
+    0%   { top: -2px; opacity: 0; }
+    5%   { opacity: 0.25; }
+    95%  { opacity: 0.25; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .animate-scan-line {
+    animation: scan-line 6s linear infinite;
+  }
+
+  /* Card select flash: one-shot ring flare on tier selection */
+  @keyframes card-select-flash {
+    0%   { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+    30%  { box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.6); }
+    100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+  }
+  .animate-card-select-flash {
+    animation: card-select-flash 0.4s ease-out forwards;
+  }
+
+  /* Energy bar: horizontal pulse for selected state accent */
+  @keyframes energy-flow {
+    0%        { transform: scaleX(0); opacity: 0; }
+    40%       { opacity: 1; }
+    100%      { transform: scaleX(1); opacity: 0.6; }
+  }
+  .animate-energy-flow {
+    animation: energy-flow 0.35s ease-out forwards;
+    transform-origin: left center;
+  }
+
+  /* Nebula drift: slow background gradient shift */
+  @keyframes nebula-drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    33%  { transform: translate(2%, -1%) scale(1.02); }
+    66%  { transform: translate(-1%, 2%) scale(0.99); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+  .animate-nebula-drift {
+    animation: nebula-drift 18s ease-in-out infinite;
+  }
 }
 
