@@ -39,12 +39,14 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, currentUserId, readReceipts, onVisible }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const lastIncomingRef = useRef<string | null>(null)
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom within the chat container (not the whole page)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    const container = containerRef.current
+    if (!container) return
+    container.scrollTop = container.scrollHeight
   }, [messages])
 
   // Mark read when a new incoming message appears in view
@@ -64,7 +66,7 @@ export function MessageList({ messages, currentUserId, readReceipts, onVisible }
   }, [messages, currentUserId, markReadCallback])
 
   return (
-    <div className="flex-1 overflow-y-auto bg-surface px-4 py-8 md:px-8">
+    <div ref={containerRef} className="flex-1 overflow-y-auto bg-surface px-4 py-8 md:px-8">
       <div className="flex w-full flex-col gap-5">
         {messages.map((message) => {
           if (message.type === "system") {
@@ -174,7 +176,6 @@ export function MessageList({ messages, currentUserId, readReceipts, onVisible }
           )
         })}
       </div>
-      <div ref={bottomRef} aria-hidden="true" />
     </div>
   )
 }
