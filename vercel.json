@@ -4,7 +4,7 @@
   "crons": [
     {
       "path": "/api/payments/base/poll",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }

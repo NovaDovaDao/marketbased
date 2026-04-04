@@ -4,7 +4,7 @@ import { usdToUsdcUnits } from "@/lib/pricing"
 import { type NextRequest } from "next/server"
 
 /**
- * Called by Vercel Cron every minute.
+ * Called by Vercel Cron once per day at midnight UTC.
  * Finds all pending Base purchases in the last 2 hours and checks for
  * matching USDC Transfer events on-chain. Atomically credits spaceDust on match.
  */
