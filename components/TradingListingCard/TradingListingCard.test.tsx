@@ -40,14 +40,9 @@ describe("TradingListingCard", () => {
     expect(screen.getByText("Harlequin Crest")).toBeDefined()
   })
 
-  it("renders USD price", () => {
+  it("renders space dust price", () => {
     render(<TradingListingCard listing={baseListing} />)
-    expect(screen.getByText("$284")).toBeDefined()
-  })
-
-  it("renders forum gold price", () => {
-    render(<TradingListingCard listing={baseListing} />)
-    expect(screen.getByText("1,450 fg")).toBeDefined()
+    expect(screen.getByText("1,450 sd")).toBeDefined()
   })
 
   it("renders Elite Unique badge for unique items", () => {

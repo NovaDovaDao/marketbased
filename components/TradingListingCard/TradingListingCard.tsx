@@ -1,7 +1,5 @@
 import {
-  formatEth,
   formatForumGold,
-  formatUsd,
   type TradingListing,
 } from "@/types/trading"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -109,9 +107,7 @@ export default function TradingListingCard({
     skills,
     tier,
     image,
-    priceUsdCents,
     priceForumGold,
-    priceEth,
     relicStatus,
   } = listing
 
@@ -205,26 +201,12 @@ export default function TradingListingCard({
           <div className="flex flex-wrap items-end gap-6">
             {priceForumGold !== null && (
               <div>
-                <p className="text-label-sm text-stone-500">Forum Gold</p>
+                <p className="text-label-sm text-stone-500">Space Dust</p>
                 <p className="font-serif text-base font-bold text-secondary">
                   {formatForumGold(priceForumGold)}
                 </p>
               </div>
             )}
-            {priceEth !== null && (
-              <div>
-                <p className="text-label-sm text-stone-500">ETH</p>
-                <p className="font-serif text-base font-bold text-stone-300">
-                  {formatEth(priceEth)}
-                </p>
-              </div>
-            )}
-            <div>
-              <p className="text-label-sm text-stone-500">USD</p>
-              <p className="font-serif text-base font-bold text-stone-200">
-                {formatUsd(priceUsdCents)}
-              </p>
-            </div>
           </div>
         </div>
       </div>

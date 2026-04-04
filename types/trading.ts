@@ -161,9 +161,9 @@ export function formatEth(microEth: number): string {
   return `${(microEth / 1_000_000).toFixed(2)} ETH`
 }
 
-/** Format forum gold with "fg" suffix */
+/** Format space dust with "sd" suffix */
 export function formatForumGold(fg: number): string {
-  return `${fg.toLocaleString("en-US")} fg`
+  return `${fg.toLocaleString("en-US")} sd`
 }
 
 // ── Static filter options (source of truth for UI) ───────────────────────────
