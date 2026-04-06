@@ -24,7 +24,13 @@ export default async function ProfilePage({ params }: Props) {
 
   const user = await prisma.user.findUnique({
     where: { username },
-    include: {
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      image: true,
+      createdAt: true,
+      spaceDust: true,
       listings: {
         where: { status: "active" },
         orderBy: { createdAt: "desc" },
@@ -76,7 +82,7 @@ export default async function ProfilePage({ params }: Props) {
           stats={{
             totalTrades: txCount,
             successfulTrades: txCount,
-            successRate: txCount > 0 ? 100 : 0,
+            spaceDust: user.spaceDust,
             totalListings: activeCount,
             activeListings: activeCount,
           }}

@@ -32,7 +32,7 @@ function formatMemberSince(dateStr: string): string {
 export default function UserProfileStats({ stats, memberSince }: UserProfileStatsProps) {
   const cells: StatCellProps[] = [
     { value: stats.totalTrades.toLocaleString(), label: "Total Trades" },
-    { value: `${stats.successRate}%`, label: "Success Rate" },
+    { value: stats.spaceDust.toLocaleString(), label: "Space Dust" },
     { value: stats.activeListings.toString(), label: "Active Listings" },
     { value: formatMemberSince(memberSince), label: "Member Since" },
   ]

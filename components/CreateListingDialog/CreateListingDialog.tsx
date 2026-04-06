@@ -79,8 +79,6 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null)
   const [name, setName] = useState("")
   const [rarity, setRarity] = useState("Unique")
-  const [priceType, setPriceType] = useState<"usdc" | "eth">("usdc")
-  const [priceValue, setPriceValue] = useState("")
   const [spaceDustPrice, setSpaceDustPrice] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -113,7 +111,6 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
     setSelectedItem(null)
     setName("")
     setRarity("Unique")
-    setPriceValue("")
     setSpaceDustPrice("")
     setError(null)
   }
@@ -124,11 +121,6 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
     setSubmitting(true)
 
     try {
-      const price =
-        priceType === "usdc"
-          ? { usdc: Math.round(parseFloat(priceValue) * 100) }
-          : { eth: priceValue }
-
       const res = await fetch("/api/listings/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -138,8 +130,8 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
           name: selectedItem ? selectedItem.name : name,
           baseName: selectedItem ? selectedItem.name : name,
           rarity: selectedItem ? selectedItem.rarity : rarity,
-          price,
-          ...(spaceDustPrice.trim() ? { spaceDustPrice: parseInt(spaceDustPrice, 10) } : {}),
+          price: {},
+          spaceDustPrice: parseInt(spaceDustPrice, 10),
         }),
       })
 
@@ -160,7 +152,7 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
     }
   }
 
-  const canSubmit = (selectedItem !== null || name.trim().length > 0) && priceValue.trim().length > 0
+  const canSubmit = (selectedItem !== null || name.trim().length > 0) && spaceDustPrice.trim().length > 0 && parseInt(spaceDustPrice, 10) > 0
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm() }}>
@@ -312,14 +304,10 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
               </>
             )}
 
-            {/* ── Price ── */}
-            <div className="flex flex-col gap-2">
-            </div>
-
             {error && <p className="text-xs text-red-400/80">{error}</p>}
 
-            {/* ── Space Dust price (optional) ── */}
-            <div className="flex flex-col gap-1.5 border-t border-stone-800/60 pt-4">
+            {/* ── Space Dust price ── */}
+            <div className="flex flex-col gap-1.5">
               <label className={labelCls}>Space Dust price</label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant/40">✨</span>
@@ -334,7 +322,7 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
                 />
               </div>
               <p className="text-[10px] text-on-surface-variant/30">
-                Buyers can purchase instantly with Space Dust. Leave blank for offer-only.
+                Set the Space Dust amount buyers can purchase this item for.
               </p>
             </div>
 

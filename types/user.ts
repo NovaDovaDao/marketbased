@@ -19,8 +19,8 @@ export interface UserReputation {
 export interface UserStats {
   totalTrades: number
   successfulTrades: number
-  /** Integer percentage 0–100 */
-  successRate: number
+  /** Space Dust balance (integer units) */
+  spaceDust: number
   totalListings: number
   activeListings: number
 }

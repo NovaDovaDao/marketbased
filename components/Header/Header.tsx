@@ -2,6 +2,7 @@
 
 import { authClient } from "@/app/utils/auth-client"
 import { CreateListingDialog } from "@/components/CreateListingDialog/CreateListingDialog"
+import { SendSpaceDustDialog } from "@/components/SendSpaceDustDialog/SendSpaceDustDialog"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
@@ -119,15 +120,28 @@ export default function Header() {
           <div className="hidden items-center gap-4 md:flex">
             {session ? (
               <>
-                {/* Space Dust balance */}
+                {/* Space Dust balance + Send */}
                 {spaceDust !== null && (
-                  <a
-                    href="/store"
-                    className="flex items-center gap-1.5 rounded border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300 transition-colors hover:bg-amber-400/20"
-                    aria-label="Space Dust balance — buy more"
-                  >
-                    ✨ {spaceDust.toLocaleString()} sd
-                  </a>
+                  <div className="flex items-center gap-1.5">
+                    <a
+                      href="/store"
+                      className="flex items-center gap-1.5 rounded border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300 transition-colors hover:bg-amber-400/20"
+                      aria-label="Space Dust balance — buy more"
+                    >
+                      ✨ {spaceDust.toLocaleString()} sd
+                    </a>
+                    <SendSpaceDustDialog
+                      currentBalance={spaceDust}
+                      trigger={
+                        <button
+                          className="rounded border border-amber-400/20 bg-amber-400/5 px-2 py-1 text-xs font-semibold text-amber-300/70 transition-colors hover:bg-amber-400/15 hover:text-amber-300"
+                          aria-label="Send Space Dust"
+                        >
+                          Send
+                        </button>
+                      }
+                    />
+                  </div>
                 )}
                 {/* Messages icon with unread badge */}
                 <a
@@ -254,13 +268,26 @@ export default function Header() {
             {session ? (
               <>
                 {spaceDust !== null && (
-                  <a
-                    href="/store"
-                    onClick={() => setMenuOpen(false)}
-                    className="inline-flex items-center gap-2 rounded border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-400/20"
-                  >
-                    ✨ {spaceDust.toLocaleString()} Space Dust — Buy More
-                  </a>
+                  <div className="flex flex-col gap-2">
+                    <a
+                      href="/store"
+                      onClick={() => setMenuOpen(false)}
+                      className="inline-flex items-center gap-2 rounded border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-400/20"
+                    >
+                      ✨ {spaceDust.toLocaleString()} Space Dust — Buy More
+                    </a>
+                    <SendSpaceDustDialog
+                      currentBalance={spaceDust}
+                      trigger={
+                        <button
+                          onClick={() => setMenuOpen(false)}
+                          className="inline-flex items-center gap-2 rounded border border-amber-400/20 bg-amber-400/5 px-3 py-2 text-sm font-semibold text-amber-300/70 transition-colors hover:bg-amber-400/15 hover:text-amber-300"
+                        >
+                          ✨ Send Space Dust
+                        </button>
+                      }
+                    />
+                  </div>
                 )}
                 <CreateListingDialog
                   trigger={

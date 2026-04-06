@@ -24,7 +24,7 @@ const baseProfile: UserProfileType = {
   stats: {
     totalTrades: 200,
     successfulTrades: 195,
-    successRate: 97,
+    spaceDust: 4750,
     totalListings: 10,
     activeListings: 2,
   },
@@ -66,9 +66,9 @@ describe("UserProfile", () => {
     expect(screen.getByText("200")).toBeTruthy()
   })
 
-  it("renders success rate stat", () => {
+  it("renders space dust stat", () => {
     render(<UserProfile profile={baseProfile} runes={sampleRunes} />)
-    expect(screen.getByText("97%")).toBeTruthy()
+    expect(screen.getByText("4,750")).toBeTruthy()
   })
 
   it("renders listings for each runeId that exists in runes", () => {

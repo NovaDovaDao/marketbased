@@ -80,9 +80,11 @@ model User {
   // Space Dust balance (in-app currency)
   spaceDust Int @default(0)
 
-  purchases       Purchase[]
-  buyerPurchases  ItemPurchase[] @relation("BuyerItemPurchases")
-  sellerPurchases ItemPurchase[] @relation("SellerItemPurchases")
+  purchases         Purchase[]
+  buyerPurchases    ItemPurchase[]      @relation("BuyerItemPurchases")
+  sellerPurchases   ItemPurchase[]      @relation("SellerItemPurchases")
+  sentTransfers     SpaceDustTransfer[] @relation("SentTransfers")
+  receivedTransfers SpaceDustTransfer[] @relation("ReceivedTransfers")
 
   @@map("user")
 }
@@ -310,4 +312,20 @@ model ItemPurchase {
   @@index([buyerId])
   @@index([sellerId])
   @@map("item_purchase")
+}
+
+// Audit log for peer-to-peer Space Dust transfers (like D2JSP forum gold sends)
+model SpaceDustTransfer {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("SentTransfers", fields: [senderId], references: [id])
+  recipientId String
+  recipient   User     @relation("ReceivedTransfers", fields: [recipientId], references: [id])
+  amount      Int // always positive; deducted from sender, added to recipient
+  note        String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([senderId])
+  @@index([recipientId])
+  @@map("space_dust_transfer")
 }

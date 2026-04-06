@@ -28,7 +28,7 @@ const fullProfile: UserProfileType = {
   stats: {
     totalTrades: 847,
     successfulTrades: 831,
-    successRate: 98,
+    spaceDust: 12350,
     totalListings: 24,
     activeListings: 3,
   },
@@ -83,7 +83,7 @@ export const NewUser: Story = {
       bio: "Just arrived in the Sanctuary. Looking to trade my first runes.",
       memberSince: "2026-03-01",
       reputation: { score: 0, totalReviews: 0 },
-      stats: { totalTrades: 0, successfulTrades: 0, successRate: 0, totalListings: 0, activeListings: 0 },
+      stats: { totalTrades: 0, successfulTrades: 0, spaceDust: 0, totalListings: 0, activeListings: 0 },
       activeListings: [],
       tradeHistory: [],
     },
