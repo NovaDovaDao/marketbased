@@ -8,8 +8,6 @@ interface DbListingCardProps {
   name: string
   rarity: string
   rarityColor: string
-  priceDisplay: string
-  priceUsdCents: number | undefined
   sellerUsername: string
   spaceDustPrice: number | null
 }
@@ -19,8 +17,6 @@ export function DbListingCard({
   name,
   rarity,
   rarityColor,
-  priceDisplay,
-  priceUsdCents,
   sellerUsername,
   spaceDustPrice,
 }: DbListingCardProps) {
@@ -57,7 +53,7 @@ export function DbListingCard({
             className="font-headline text-base font-bold text-secondary"
             style={{ textShadow: "0 0 16px rgba(247,189,72,0.2)" }}
           >
-            {priceDisplay}
+            {spaceDustPrice != null ? `✨ ${spaceDustPrice.toLocaleString()} SD` : "—"}
           </p>
           <p className="font-headline text-[10px] text-on-surface-variant/30">
             by {sellerUsername}
@@ -75,7 +71,7 @@ export function DbListingCard({
           <MakeOfferDialog
             listingId={id}
             listingName={name}
-            askingUsdCents={priceUsdCents}
+            askingSpaceDustPrice={spaceDustPrice}
             trigger={
               <button
                 className="px-3 py-1.5 font-headline text-[10px] font-bold uppercase tracking-widest transition-opacity hover:opacity-85"

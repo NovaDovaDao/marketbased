@@ -32,14 +32,8 @@ interface Offer {
 function formatOfferData(offerData: unknown): string {
   if (!offerData || typeof offerData !== "object") return "—"
   const d = offerData as Record<string, unknown>
-  if (d.type === "usdc" && typeof d.usdcCents === "number") {
-    return `$${(d.usdcCents / 100).toFixed(2)} USDC`
-  }
-  if (d.type === "runes" && Array.isArray(d.runes)) {
-    const runes = d.runes as Array<{ name: string; quantity: number }>
-    if (runes.length === 0) return "No runes"
-    if (runes.length === 1) return `${runes[0]!.quantity}× ${runes[0]!.name}`
-    return `${runes.map((r) => `${r.quantity}× ${r.name}`).join(", ")}`
+  if (d.type === "spaceDust" && typeof d.spaceDustAmount === "number") {
+    return `✨ ${d.spaceDustAmount.toLocaleString()} SD`
   }
   return JSON.stringify(offerData)
 }

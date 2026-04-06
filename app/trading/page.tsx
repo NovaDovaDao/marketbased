@@ -21,21 +21,6 @@ export const metadata: Metadata = {
 const ITEMS_PER_PAGE = 12
 const allListings = listingsData as TradingListing[]
 
-// ── DB listing price formatter ────────────────────────────────────────────
-
-type PriceJson = { usdc?: number; eth?: string | number;[key: string]: unknown }
-
-function formatDbPrice(price: unknown): { display: string; usdCents?: number } {
-  if (!price || typeof price !== "object" || Array.isArray(price)) return { display: "—" }
-  const p = price as PriceJson
-  if (typeof p.usdc === "number") {
-    return { display: `$${(p.usdc / 100).toFixed(2)}`, usdCents: p.usdc }
-  }
-  if (p.eth !== undefined) return { display: `${p.eth} ETH` }
-  const first = Object.entries(p)[0]
-  return first ? { display: `${first[1]} ${first[0].toUpperCase()}` } : { display: "—" }
-}
-
 const RARITY_COLOR: Record<string, string> = {
   Unique: "#ff9b48",
   Set: "#4ade80",
@@ -188,7 +173,6 @@ export default async function TradingPage({ searchParams }: PageProps) {
       id: true,
       name: true,
       rarity: true,
-      price: true,
       spaceDustPrice: true,
       seller: { select: { id: true, username: true } },
     },
@@ -268,7 +252,6 @@ export default async function TradingPage({ searchParams }: PageProps) {
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {dbListings.map((listing) => {
-                  const { display, usdCents } = formatDbPrice(listing.price)
                   const color = RARITY_COLOR[listing.rarity] ?? "#9ca3af"
                   return (
                     <DbListingCard
@@ -277,8 +260,6 @@ export default async function TradingPage({ searchParams }: PageProps) {
                       name={listing.name}
                       rarity={listing.rarity}
                       rarityColor={color}
-                      priceDisplay={display}
-                      priceUsdCents={usdCents}
                       sellerUsername={listing.seller.username ?? ""}
                       spaceDustPrice={listing.spaceDustPrice ?? null}
                     />

@@ -7,13 +7,8 @@ import { z } from "zod";
 const offerSchema = z.object({
   listingId: z.string().min(1),
   offerData: z.object({
-    type: z.enum(["usdc", "runes"]),
-    // USDC: integer cents
-    usdcCents: z.number().int().positive().optional(),
-    // Runes: array of { name, quantity }
-    runes: z
-      .array(z.object({ name: z.string().min(1), quantity: z.number().int().positive() }))
-      .optional(),
+    type: z.enum(["spaceDust"]),
+    spaceDustAmount: z.number().int().positive(),
   }),
 });
 
