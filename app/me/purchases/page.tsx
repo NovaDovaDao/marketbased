@@ -6,8 +6,9 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Purchase History — Market Base",
+  title: "Purchase History",
   description: "View your item purchases and Space Dust top-up history.",
+  robots: { index: false, follow: false },
 }
 
 export default async function PurchasesPage() {

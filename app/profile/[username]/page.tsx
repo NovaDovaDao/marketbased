@@ -14,8 +14,37 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { name: true, _count: { select: { listings: true, transactions: true } } },
+  })
+
+  if (!user) {
+    return { title: "Profile Not Found", robots: { index: false, follow: false } }
+  }
+
+  const displayName = user.name ?? username
+  const title = `${displayName} (@${username})`
+  const description = `View ${displayName}'s active listings and trading history on Market Base. ${user._count.listings} active listing${user._count.listings !== 1 ? "s" : ""} • ${user._count.transactions} completed trade${user._count.transactions !== 1 ? "s" : ""}.`
+
   return {
-    title: `${username} — Marketbased`,
+    title,
+    description,
+    alternates: {
+      canonical: `https://marketbased.vercel.app/profile/${username}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `https://marketbased.vercel.app/profile/${username}`,
+      type: "profile",
+      username,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
   }
 }
 

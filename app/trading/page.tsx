@@ -13,9 +13,25 @@ import { type Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Trading — Market Base",
+  title: "Item Trading — Diablo II Marketplace",
   description:
-    "Buy, sell, and trade Diablo II items. Filter by category, tier, rarity, stats, and more.",
+    "Buy, sell, and trade Diablo II items on Market Base. Filter by category, tier, rarity, stats, and more. Unique, Set, Rare, Magic items and runewords.",
+  alternates: {
+    canonical: "https://marketbased.vercel.app/trading",
+  },
+  openGraph: {
+    title: "Item Trading — Diablo II Marketplace",
+    description:
+      "Buy, sell, and trade Diablo II items on Market Base. Filter by category, tier, rarity, stats, and more. Unique, Set, Rare, Magic items and runewords.",
+    url: "https://marketbased.vercel.app/trading",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Item Trading — Diablo II Marketplace",
+    description:
+      "Buy, sell, and trade Diablo II items on Market Base. Filter by category, tier, rarity, stats, and more. Unique, Set, Rare, Magic items and runewords.",
+  },
 }
 
 const ITEMS_PER_PAGE = 12

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 export const metadata = {
   title: "Buy Space Dust",
   description: "Top up your Space Dust balance with card, PayPal, or crypto.",
+  robots: { index: false, follow: false },
 }
 
 export default async function StorePage() {

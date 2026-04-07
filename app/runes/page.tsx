@@ -4,8 +4,25 @@ import { type Rune, type RuneTier, ALL_TIERS, TIER_LABELS } from "@/types/rune"
 import { type Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Rune Market — Market Base",
-  description: "Buy, sell, and trade Diablo II runes. All 33 runes from El to Zod, organized by tier.",
+  title: "Rune Market — Buy & Sell Diablo II Runes",
+  description:
+    "Browse all 33 Diablo II runes — El through Zod — sorted by tier. Buy runes with Space Dust or list your own for sale on Market Base.",
+  alternates: {
+    canonical: "https://marketbased.vercel.app/runes",
+  },
+  openGraph: {
+    title: "Rune Market — Buy & Sell Diablo II Runes",
+    description:
+      "Browse all 33 Diablo II runes — El through Zod — sorted by tier. Buy runes with Space Dust or list your own for sale on Market Base.",
+    url: "https://marketbased.vercel.app/runes",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rune Market — Buy & Sell Diablo II Runes",
+    description:
+      "Browse all 33 Diablo II runes — El through Zod — sorted by tier. Buy runes with Space Dust or list your own for sale on Market Base.",
+  },
 }
 
 const runes = runesData as Rune[]

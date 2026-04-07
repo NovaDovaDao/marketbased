@@ -17,7 +17,7 @@ const itemImageMap = new Map<string, string>([
   ),
 ])
 
-export const metadata = { title: "Trade Rooms — Marketbased" }
+export const metadata = { title: "Trade Rooms — Market Base", robots: { index: false, follow: false } }
 
 function isLive(status: string) {
   return status === "open" || status === "active"

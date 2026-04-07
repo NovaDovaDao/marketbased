@@ -2,10 +2,34 @@ import { type Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Market Base — Ancient Market of Sanctuary",
-  description: "A digital sanctum for peer-to-peer game item trading. Carved from the void, secured by the ledger.",
-  twitter: { card: "summary_large_image" },
+  description:
+    "Trade Diablo II runes, items, and runewords peer-to-peer. Browse El through Zod, make offers, and seal deals securely on the Ancient Market of Sanctuary.",
+  alternates: {
+    canonical: "https://marketbased.vercel.app",
+  },
   openGraph: {
-    url: "https://marketbased.vercel.app/",
+    title: "Market Base — Ancient Market of Sanctuary",
+    description:
+      "Trade Diablo II runes, items, and runewords peer-to-peer. Browse El through Zod, make offers, and seal deals securely on the Ancient Market of Sanctuary.",
+    url: "https://marketbased.vercel.app",
+    type: "website",
+  },
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Market Base",
+  url: "https://marketbased.vercel.app",
+  description:
+    "A peer-to-peer marketplace for Diablo II items, runes, and runewords.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: "https://marketbased.vercel.app/trading?q={search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
   },
 }
 
@@ -15,6 +39,10 @@ export default function Web() {
       className="relative flex h-screen flex-col overflow-hidden"
       aria-label="Market Base — landing"
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Ambient blood glow — top-right */}
       <div
         className="pointer-events-none absolute right-0 top-0 h-[55vh] w-[50vw]"

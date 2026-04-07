@@ -1,11 +1,17 @@
 import { prisma } from "@/app/lib/prisma"
 import { auth } from "@/app/utils/auth"
 import { TradeRoomChat } from "@/components/TradeRoomChat/TradeRoomChat"
+import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { notFound, redirect } from "next/navigation"
 
 interface PageProps {
   params: Promise<{ roomId: string }>
+}
+
+export const metadata: Metadata = {
+  title: "Trade Room",
+  robots: { index: false, follow: false },
 }
 
 export default async function TradeRoomPage({ params }: PageProps) {
