@@ -30,6 +30,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+services/chat/.env
 storybook-static/
 /test-results/
 /playwright-report/
