@@ -41,7 +41,7 @@ export const LadderSoftcorePC: Story = {
   args: {
     activeFilters: {
       ladder: "Ladder",
-      mode: "Softcore",
+      gameMode: "Softcore",
       platform: "PC",
       version: "ETR",
       region: "Americas",
