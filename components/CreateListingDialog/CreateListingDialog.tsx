@@ -79,6 +79,8 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null)
   const [name, setName] = useState("")
   const [rarity, setRarity] = useState("Unique")
+  const [gameMode, setGameMode] = useState<"SOFTCORE" | "HARDCORE">("SOFTCORE")
+  const [ladder, setLadder] = useState<"LADDER" | "NON_LADDER">("NON_LADDER")
   const [spaceDustPrice, setSpaceDustPrice] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -111,6 +113,8 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
     setSelectedItem(null)
     setName("")
     setRarity("Unique")
+    setGameMode("SOFTCORE")
+    setLadder("NON_LADDER")
     setSpaceDustPrice("")
     setError(null)
   }
@@ -130,6 +134,8 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
           name: selectedItem ? selectedItem.name : name,
           baseName: selectedItem ? selectedItem.name : name,
           rarity: selectedItem ? selectedItem.rarity : rarity,
+          gameMode,
+          ladder,
           price: {},
           spaceDustPrice: parseInt(spaceDustPrice, 10),
         }),
@@ -300,6 +306,31 @@ export function CreateListingDialog({ trigger }: CreateListingDialogProps) {
                     <option value="Rune">Rune</option>
                     <option value="Runeword">Runeword</option>
                   </select>
+                </div>
+
+                <div className="flex gap-3">
+                  <div className="flex flex-1 flex-col gap-1">
+                    <label className={labelCls}>Mode</label>
+                    <select
+                      value={gameMode}
+                      onChange={(e) => setGameMode(e.target.value as "SOFTCORE" | "HARDCORE")}
+                      className={inputCls}
+                    >
+                      <option value="SOFTCORE">Softcore</option>
+                      <option value="HARDCORE">Hardcore</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-1">
+                    <label className={labelCls}>Ladder</label>
+                    <select
+                      value={ladder}
+                      onChange={(e) => setLadder(e.target.value as "LADDER" | "NON_LADDER")}
+                      className={inputCls}
+                    >
+                      <option value="NON_LADDER">Non-Ladder</option>
+                      <option value="LADDER">Ladder</option>
+                    </select>
+                  </div>
                 </div>
               </>
             )}

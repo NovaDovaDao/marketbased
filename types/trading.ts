@@ -136,12 +136,13 @@ export interface TradingFilterState {
   levelMin?: string
   levelMax?: string
   ladder?: string
-  mode?: string
+  gameMode?: string
   platform?: string
   region?: string
   version?: string
   stats?: string[]
   skills?: string[]
+  q?: string
   page?: string
 }
 
@@ -192,18 +193,7 @@ export const ALL_ITEM_TIERS: ItemTier[] = ["Elite", "Exceptional", "Normal"]
 
 export const ALL_WEAPON_TYPES: WeaponType[] = ["1 Handed", "2 Handed"]
 
-export const RELIC_STATUS_LABELS: Record<RelicStatus, string> = {
-  free: "Sacrificial Offering (Free)",
-  makeOffer: "Accepting Tithes (Make Offer)",
-  ethereal: "Ethereal Protection",
-  unidentified: "Unidentified Artifact",
-}
-
-export const CRAFTING_STATE_LABELS: Record<CraftingState, string> = {
-  hasHel: "Includes Hel Rune",
-  isBase: "Unmade Vessel (Base)",
-  isUpgraded: "Transmuted (Upgraded)",
-}
+// Relic status and crafting state label maps removed — UI no longer exposes these labels
 
 export interface SkillGroup {
   class: string

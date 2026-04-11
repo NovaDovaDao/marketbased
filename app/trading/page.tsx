@@ -5,6 +5,8 @@ import { SellItemButton } from "@/components/SellItemButton/SellItemButton"
 import TradingListingCard from "@/components/TradingListingCard/TradingListingCard"
 import TradingSidebar from "@/components/TradingSidebar/TradingSidebar"
 import listingsData from "@/items/trading-listings.json"
+import type { D2GameMode, D2ItemRarity, D2ItemType, D2LadderType } from "@/types/d2items"
+import { D2_GAME_MODES, D2_ITEM_RARITIES, D2_ITEM_TYPES, D2_LADDER_TYPES } from "@/types/d2items"
 import {
   type TradingFilterState,
   type TradingListing,
@@ -63,8 +65,15 @@ function applyFilters(
     if (f.weaponType && listing.weaponType !== f.weaponType) return false
     if (f.rarity && listing.rarity !== f.rarity) return false
     if (f.sellerStanding && listing.sellerStanding !== f.sellerStanding) return false
-    if (f.ladder && f.ladder !== "all" && listing.ladder !== f.ladder) return false
-    if (f.mode && f.mode !== "all" && listing.mode !== f.mode) return false
+    if (f.ladder && f.ladder !== "all") {
+      // normalize D2 enum format (LADDER/NON_LADDER) to catalog string format (Ladder/NonLadder)
+      const ladderCatalog = f.ladder === "LADDER" ? "Ladder" : f.ladder === "NON_LADDER" ? "NonLadder" : f.ladder
+      if (listing.ladder !== ladderCatalog) return false
+    }
+    if (f.gameMode && f.gameMode !== "all") {
+      const modeCatalog = f.gameMode === "SOFTCORE" ? "Softcore" : f.gameMode === "HARDCORE" ? "Hardcore" : f.gameMode
+      if (listing.mode !== modeCatalog) return false
+    }
     if (f.platform && f.platform !== "all" && listing.platform !== f.platform) return false
     if (f.region && f.region !== "all" && listing.region !== f.region) return false
     if (f.version && f.version !== "all" && listing.version !== f.version) return false
@@ -151,12 +160,13 @@ function buildFilterState(
     levelMin: str("levelMin"),
     levelMax: str("levelMax"),
     ladder: str("ladder"),
-    mode: str("mode"),
+    gameMode: str("gameMode"),
     platform: str("platform"),
     region: str("region"),
     version: str("version"),
     stats: arr("stats"),
     skills: arr("skills"),
+    q: str("q"),
     page: str("page"),
   }
 }
@@ -180,9 +190,59 @@ export default async function TradingPage({ searchParams }: PageProps) {
     safePage * ITEMS_PER_PAGE
   )
 
-  // Fetch real DB listings
+  // ── Parse D2-specific filter params ──
+  const str = (key: string) => {
+    const v = params[key]
+    return typeof v === "string" ? v : undefined
+  }
+
+  const d2typeRaw = str("d2type")
+  const d2type = D2_ITEM_TYPES.includes(d2typeRaw as D2ItemType) ? (d2typeRaw as D2ItemType) : undefined
+  const d2rarityRaw = str("d2rarity")
+  const d2rarity = D2_ITEM_RARITIES.includes(d2rarityRaw as D2ItemRarity) ? (d2rarityRaw as D2ItemRarity) : undefined
+  const gameModeRaw = str("gameMode")
+  const gameMode = D2_GAME_MODES.includes(gameModeRaw as D2GameMode) ? (gameModeRaw as D2GameMode) : undefined
+  const ladderRaw = str("ladder")
+  // ladder param now uses D2 enum format (LADDER/NON_LADDER) from both CoreParameters and sidebar
+  const ladder = D2_LADDER_TYPES.includes(ladderRaw as D2LadderType) ? (ladderRaw as D2LadderType) : undefined
+  const ethereal = str("ethereal") === "true" ? true : str("ethereal") === "false" ? false : undefined
+  const ilvlMin = str("ilvlMin") ? parseInt(str("ilvlMin")!, 10) : undefined
+  const ilvlMax = str("ilvlMax") ? parseInt(str("ilvlMax")!, 10) : undefined
+  const socketsMin = str("socketsMin") ? parseInt(str("socketsMin")!, 10) : undefined
+  const socketsMax = str("socketsMax") ? parseInt(str("socketsMax")!, 10) : undefined
+  const statKey = str("statKey")
+  const statMin = str("statMin") ? Number(str("statMin")) : undefined
+  const q = str("q")?.trim() ?? undefined
+  const isPerfectParam = str("isPerfect") === "true" ? true : undefined
+
+  const hasD2Filters = !!(d2type || d2rarity || ethereal !== undefined || ilvlMin || ilvlMax || socketsMin || socketsMax || statKey || gameMode || ladder || isPerfectParam || q)
+
+  // ── Build D2 instance where clause ──
+  const instanceWhere = hasD2Filters
+    ? {
+      ...(d2rarity ? { rarity: d2rarity } : {}),
+      ...(ethereal !== undefined ? { ethereal } : {}),
+      ...(gameMode ? { gameMode } : {}),
+      ...(ladder ? { ladder } : {}),
+      ...(isPerfectParam !== undefined ? { isPerfect: isPerfectParam } : {}),
+      ...(ilvlMin !== undefined || ilvlMax !== undefined
+        ? { ilvl: { ...(ilvlMin ? { gte: ilvlMin } : {}), ...(ilvlMax ? { lte: ilvlMax } : {}) } }
+        : {}),
+      ...(socketsMin !== undefined || socketsMax !== undefined
+        ? { sockets: { ...(socketsMin ? { gte: socketsMin } : {}), ...(socketsMax ? { lte: socketsMax } : {}) } }
+        : {}),
+      ...(d2type ? { baseItem: { type: d2type } } : {}),
+      ...(statKey && statMin !== undefined ? { stats: { path: [statKey], gte: statMin } } : {}),
+      ...(q ? { searchText: { contains: q.toLowerCase(), mode: "insensitive" as const } } : {}),
+    }
+    : undefined
+
+  // Fetch real DB listings (with D2 filters if present)
   const dbListings = await prisma.listing.findMany({
-    where: { status: "active" },
+    where: {
+      status: "active",
+      ...(hasD2Filters ? { itemInstanceId: { not: null }, instance: instanceWhere } : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: 20,
     select: {
@@ -190,7 +250,27 @@ export default async function TradingPage({ searchParams }: PageProps) {
       name: true,
       rarity: true,
       spaceDustPrice: true,
+      tradeCurrency: true,
       seller: { select: { id: true, username: true } },
+      instance: {
+        select: {
+          id: true,
+          name: true,
+          rarity: true,
+          ilvl: true,
+          sockets: true,
+          ethereal: true,
+          identified: true,
+          gameMode: true,
+          ladder: true,
+          statKeys: true,
+          searchText: true,
+          score: true,
+          isPerfect: true,
+          stats: true,
+          baseItem: { select: { id: true, name: true, type: true, baseType: true } },
+        },
+      },
     },
   })
 

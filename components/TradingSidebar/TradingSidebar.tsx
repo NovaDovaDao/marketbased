@@ -1,6 +1,12 @@
 "use client"
 
 import {
+  D2_ITEM_RARITIES,
+  D2_ITEM_TYPES,
+  type D2ItemRarity,
+  type D2ItemType,
+} from "@/types/d2items"
+import {
   ALL_BODY_LOCATIONS,
   ALL_CATEGORIES,
   ALL_CRAFT_TYPES,
@@ -155,6 +161,22 @@ const Icons = {
       <path d="M4 10l1.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" />
     </svg>
   ),
+  d2type: (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M7 1l5 3v5l-5 4-5-4V4z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="bevel" />
+    </svg>
+  ),
+  d2rarity: (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M7 2l1.2 3.6h3.8l-3 2.2 1.1 3.6L7 9.5l-3.1 1.9 1.1-3.6-3-2.2h3.8z" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  ),
+  instance: (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M4.5 7h5M7 4.5v5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" />
+    </svg>
+  ),
 }
 
 // ── Main component ─────────────────────────────────────────────────────────
@@ -193,10 +215,26 @@ export default function TradingSidebar({ activeFilters }: TradingSidebarProps) {
     [router, searchParams]
   )
 
+  const setRangeParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+      params.delete("page")
+      router.replace(`/trading?${params.toString()}`)
+    },
+    [router, searchParams]
+  )
+
   const resetSidebar = useCallback(() => {
     const sidebarKeys = [
       "category", "itemType", "bodyLocation", "craftType",
       "gemType", "tier", "weaponType", "stats", "skills",
+      "d2type", "d2rarity", "ethereal", "ilvlMin", "ilvlMax",
+      "socketsMin", "socketsMax", "statKey", "statMin", "isPerfect",
     ]
     const params = new URLSearchParams(searchParams.toString())
     sidebarKeys.forEach((k) => params.delete(k))
@@ -206,6 +244,33 @@ export default function TradingSidebar({ activeFilters }: TradingSidebarProps) {
 
   const activeStats: string[] = activeFilters.stats ?? []
   const activeSkills: string[] = activeFilters.skills ?? []
+
+  // D2-specific filter state read from URL directly
+  const searchParamsSnapshot = useSearchParams()
+  const d2type = searchParamsSnapshot.get("d2type") ?? ""
+  const d2rarity = searchParamsSnapshot.get("d2rarity") ?? ""
+  const ethereal = searchParamsSnapshot.get("ethereal") === "true"
+  const ilvlMin = searchParamsSnapshot.get("ilvlMin") ?? ""
+  const ilvlMax = searchParamsSnapshot.get("ilvlMax") ?? ""
+  const socketsMin = searchParamsSnapshot.get("socketsMin") ?? ""
+  const socketsMax = searchParamsSnapshot.get("socketsMax") ?? ""
+  const statKey = searchParamsSnapshot.get("statKey") ?? ""
+  const statMin = searchParamsSnapshot.get("statMin") ?? ""
+  const isPerfect = searchParamsSnapshot.get("isPerfect") === "true"
+
+  const hasD2Active = !!(d2type || d2rarity || ethereal || ilvlMin || ilvlMax || socketsMin || socketsMax || statKey || isPerfect)
+
+  const D2_TYPE_LABELS: Record<D2ItemType, string> = {
+    HELMET: "Helmet", ARMOR: "Armor", SHIELD: "Shield", GLOVES: "Gloves",
+    BOOTS: "Boots", BELT: "Belt", WEAPON: "Weapon", RING: "Ring",
+    AMULET: "Amulet", CHARM: "Charm", JEWEL: "Jewel", RUNE: "Rune",
+    GEM: "Gem", MISC: "Misc",
+  }
+
+  const D2_RARITY_LABELS: Record<D2ItemRarity, string> = {
+    NORMAL: "Normal", MAGIC: "Magic", RARE: "Rare", SET: "Set",
+    UNIQUE: "Unique", RUNEWORD: "Runeword", CRAFTED: "Crafted",
+  }
 
   const filteredStats = statsQuery.trim()
     ? STAT_OPTIONS.filter((s) =>
@@ -220,6 +285,7 @@ export default function TradingSidebar({ activeFilters }: TradingSidebarProps) {
   if (activeFilters.tier) defaultOpen.push("tier")
   if (activeFilters.itemType) defaultOpen.push("item-type")
   if (activeStats.length > 0) defaultOpen.push("stats")
+  if (hasD2Active) defaultOpen.push("d2-instance")
 
   return (
     <aside
@@ -519,6 +585,177 @@ export default function TradingSidebar({ activeFilters }: TradingSidebarProps) {
                   onClick={() => setParam("weaponType", wt, activeFilters.weaponType)}
                 />
               ))}
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
+
+        {/* ── D2 Instance Filters ── */}
+        <Accordion.Item value="d2-instance">
+          <SectionTrigger
+            icon={Icons.instance}
+            label="Item Instance"
+            isActive={hasD2Active}
+          />
+          <Accordion.Content className="overflow-hidden">
+            <div className="space-y-5 bg-black/30 p-4">
+
+              {/* D2 Item Type */}
+              <div>
+                <p className="mb-1.5 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">Item Type</p>
+                <ScrollArea.Root className="max-h-40 overflow-hidden">
+                  <ScrollArea.Viewport className="h-full w-full">
+                    <div className="space-y-0.5 pr-1">
+                      {D2_ITEM_TYPES.map((t) => (
+                        <FilterOption
+                          key={t}
+                          label={D2_TYPE_LABELS[t]}
+                          isActive={d2type === t}
+                          onClick={() => setRangeParam("d2type", d2type === t ? "" : t)}
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea.Viewport>
+                  <ScrollArea.Scrollbar orientation="vertical" className="flex w-1.5 touch-none select-none bg-stone-900 p-0.5">
+                    <ScrollArea.Thumb className="relative flex-1 bg-stone-700" />
+                  </ScrollArea.Scrollbar>
+                </ScrollArea.Root>
+              </div>
+
+              {/* D2 Rarity */}
+              <div>
+                <p className="mb-1.5 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">Rarity</p>
+                <div className="space-y-0.5">
+                  {D2_ITEM_RARITIES.map((r) => (
+                    <FilterOption
+                      key={r}
+                      label={D2_RARITY_LABELS[r]}
+                      isActive={d2rarity === r}
+                      onClick={() => setRangeParam("d2rarity", d2rarity === r ? "" : r)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Item Level range */}
+              <div>
+                <p className="mb-1.5 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">Item Level (ilvl)</p>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    placeholder="Min"
+                    defaultValue={ilvlMin}
+                    key={`ilvlMin-${ilvlMin}`}
+                    onBlur={(e) => setRangeParam("ilvlMin", e.target.value)}
+                    className="w-full border border-stone-800 bg-stone-950/80 px-2 py-1.5 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none focus:border-amber-500"
+                    aria-label="Min item level"
+                  />
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    placeholder="Max"
+                    defaultValue={ilvlMax}
+                    key={`ilvlMax-${ilvlMax}`}
+                    onBlur={(e) => setRangeParam("ilvlMax", e.target.value)}
+                    className="w-full border border-stone-800 bg-stone-950/80 px-2 py-1.5 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none focus:border-amber-500"
+                    aria-label="Max item level"
+                  />
+                </div>
+              </div>
+
+              {/* Sockets range */}
+              <div>
+                <p className="mb-1.5 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">Sockets</p>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={6}
+                    placeholder="Min"
+                    defaultValue={socketsMin}
+                    key={`socketsMin-${socketsMin}`}
+                    onBlur={(e) => setRangeParam("socketsMin", e.target.value)}
+                    className="w-full border border-stone-800 bg-stone-950/80 px-2 py-1.5 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none focus:border-amber-500"
+                    aria-label="Min sockets"
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    max={6}
+                    placeholder="Max"
+                    defaultValue={socketsMax}
+                    key={`socketsMax-${socketsMax}`}
+                    onBlur={(e) => setRangeParam("socketsMax", e.target.value)}
+                    className="w-full border border-stone-800 bg-stone-950/80 px-2 py-1.5 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none focus:border-amber-500"
+                    aria-label="Max sockets"
+                  />
+                </div>
+              </div>
+
+              {/* Stat key + min */}
+              <div>
+                <p className="mb-1.5 text-[10px] font-bold tracking-[0.2em] text-stone-500 uppercase">Stat Filter</p>
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="text"
+                    placeholder='e.g. "all_resist"'
+                    defaultValue={statKey}
+                    key={`statKey-${statKey}`}
+                    onBlur={(e) => setRangeParam("statKey", e.target.value)}
+                    className="w-full border border-stone-800 bg-stone-950/80 px-2 py-1.5 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none focus:border-amber-500"
+                    aria-label="Stat key"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Min value"
+                    defaultValue={statMin}
+                    key={`statMin-${statMin}`}
+                    onBlur={(e) => setRangeParam("statMin", e.target.value)}
+                    className="w-full border border-stone-800 bg-stone-950/80 px-2 py-1.5 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none focus:border-amber-500"
+                    aria-label="Min stat value"
+                  />
+                </div>
+              </div>
+
+              {/* Ethereal */}
+              <div className="flex items-center gap-2.5">
+                <Checkbox.Root
+                  id="sidebar-ethereal"
+                  checked={ethereal}
+                  onCheckedChange={(checked) => setRangeParam("ethereal", checked ? "true" : "")}
+                  className="relative h-4 w-4 shrink-0 cursor-pointer border border-stone-700 bg-stone-900 transition-colors hover:border-amber-600 data-[state=checked]:border-amber-500 data-[state=checked]:bg-amber-950"
+                >
+                  <Checkbox.Indicator className="absolute inset-0 flex items-center justify-center">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                      <path d="M1 4l2 2 4-4" stroke="#f7bd48" strokeWidth="1.2" strokeLinecap="square" />
+                    </svg>
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label htmlFor="sidebar-ethereal" className="cursor-pointer font-serif text-xs text-stone-400 hover:text-stone-200">
+                  Ethereal only
+                </label>
+              </div>
+
+              {/* Perfect roll */}
+              <div className="flex items-center gap-2.5">
+                <Checkbox.Root
+                  id="sidebar-perfect"
+                  checked={isPerfect}
+                  onCheckedChange={(checked) => setRangeParam("isPerfect", checked ? "true" : "")}
+                  className="relative h-4 w-4 shrink-0 cursor-pointer border border-stone-700 bg-stone-900 transition-colors hover:border-amber-600 data-[state=checked]:border-amber-500 data-[state=checked]:bg-amber-950"
+                >
+                  <Checkbox.Indicator className="absolute inset-0 flex items-center justify-center">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                      <path d="M1 4l2 2 4-4" stroke="#f7bd48" strokeWidth="1.2" strokeLinecap="square" />
+                    </svg>
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label htmlFor="sidebar-perfect" className="cursor-pointer font-serif text-xs text-stone-400 hover:text-stone-200">
+                  Perfect rolls only
+                </label>
+              </div>
             </div>
           </Accordion.Content>
         </Accordion.Item>

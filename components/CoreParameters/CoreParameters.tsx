@@ -1,13 +1,6 @@
 "use client"
 
-import {
-  CRAFTING_STATE_LABELS,
-  RELIC_STATUS_LABELS,
-  type CraftingState,
-  type RelicStatus,
-  type TradingFilterState,
-} from "@/types/trading"
-import * as Checkbox from "@radix-ui/react-checkbox"
+import { type TradingFilterState } from "@/types/trading"
 import * as Select from "@radix-ui/react-select"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
@@ -16,57 +9,6 @@ import { useCallback } from "react"
 
 export interface CoreParametersProps {
   activeFilters: TradingFilterState
-}
-
-// ── Styled Select sub-components ──────────────────────────────────────────
-
-function PremiumSelect({
-  value,
-  onValueChange,
-  placeholder,
-  options,
-  ariaLabel,
-}: {
-  value?: string
-  onValueChange: (v: string) => void
-  placeholder: string
-  options: { value: string; label: string }[]
-  ariaLabel: string
-}) {
-  return (
-    <Select.Root value={value ?? ""} onValueChange={onValueChange}>
-      <Select.Trigger
-        className="flex w-full cursor-pointer items-center justify-between border border-stone-800 bg-stone-950/50 px-3 py-2 font-serif text-xs text-stone-400 outline-none transition-all hover:bg-stone-900/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10"
-        aria-label={ariaLabel}
-      >
-        <Select.Value placeholder={placeholder} />
-        <Select.Icon>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
-          </svg>
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Content
-          className="z-100 overflow-hidden border border-stone-800 bg-stone-950 shadow-2xl"
-          position="popper"
-          sideOffset={4}
-        >
-          <Select.Viewport className="p-1">
-            {options.map((opt) => (
-              <Select.Item
-                key={opt.value}
-                value={opt.value}
-                className="flex cursor-pointer items-center px-3 py-2 font-serif text-xs text-stone-400 outline-none transition-colors hover:bg-stone-900 hover:text-amber-400 data-[state=checked]:text-amber-500"
-              >
-                <Select.ItemText>{opt.label}</Select.ItemText>
-              </Select.Item>
-            ))}
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
-  )
 }
 
 // ── Label cap helper ──────────────────────────────────────────────────────
@@ -79,7 +21,200 @@ function LabelCap({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ── Sigil Checkbox ────────────────────────────────────────────────────────
+// ── Main component ─────────────────────────────────────────────────────────
+
+export default function CoreParameters({ activeFilters }: CoreParametersProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (value === "" || value === "all") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+      params.delete("page")
+      router.replace(`/trading?${params.toString()}`)
+    },
+    [router, searchParams]
+  )
+
+  const resetAll = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("q")
+    params.delete("ladder")
+    params.delete("gameMode")
+    params.delete("page")
+    router.replace(`/trading?${params.toString()}`)
+  }, [router, searchParams])
+
+  const hasActive = activeFilters.q || activeFilters.ladder || activeFilters.gameMode
+
+  return (
+    <section
+      className="relative mb-8 overflow-hidden border border-amber-900/15 shadow-2xl"
+      style={{
+        background: "linear-gradient(135deg, rgba(30,30,30,0.6) 0%, rgba(15,15,15,0.8) 100%)",
+        backdropFilter: "blur(12px)",
+      }}
+      aria-label="Core filter parameters"
+    >
+      {/* Cross-hatch overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
+        aria-hidden="true"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L100 100 M100 0 L0 100' stroke='rgba(255,255,255,0.02)' stroke-width='0.5' fill='none'/%3E%3C/svg%3E\")",
+        }}
+      />
+
+      {/* Panel header */}
+      <div className="flex items-center justify-between border-b border-amber-900/20 bg-white/2 px-8 py-4">
+        <div className="flex items-center gap-3">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M1 4h14M4 8h8M7 12h2" stroke="rgba(247,189,72,0.6)" strokeWidth="1.5" strokeLinecap="square" />
+          </svg>
+          <span className="font-serif text-xs font-bold tracking-[0.2em] text-amber-500/80 uppercase">
+            The Great Filter: Core Parameters
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          {hasActive && (
+            <button
+              type="button"
+              onClick={resetAll}
+              className="font-serif text-[10px] tracking-widest text-amber-500/60 uppercase transition-colors hover:text-amber-400"
+            >
+              Clear
+            </button>
+          )}
+          <span className="font-serif text-[9px] tracking-widest text-stone-600 uppercase italic">
+            Cycle 4.1.{new Date().getDate()}
+          </span>
+        </div>
+      </div>
+
+      <div className="px-8 py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+
+          {/* ── Search ── */}
+          <div className="flex-1">
+            <LabelCap>Search</LabelCap>
+            <div className="relative">
+              <svg
+                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-stone-600"
+                width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"
+              >
+                <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M8.5 8.5L11 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" />
+              </svg>
+              <input
+                type="search"
+                placeholder='e.g. "shako +2skills eth hc ladder"'
+                value={activeFilters.q ?? ""}
+                onChange={(e) => updateParam("q", e.target.value.trim())}
+                className="w-full border border-stone-800 bg-stone-950/80 py-2 pl-9 pr-3 font-serif text-xs text-stone-200 placeholder-stone-700 outline-none transition-all focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10"
+                aria-label="Free-text item search"
+              />
+            </div>
+          </div>
+
+          {/* ── Ladder ── */}
+          <div className="w-full sm:w-40">
+            <LabelCap>Ladder</LabelCap>
+            <Select.Root
+              value={activeFilters.ladder ?? ""}
+              onValueChange={(v) => updateParam("ladder", v)}
+            >
+              <Select.Trigger
+                className="flex w-full cursor-pointer items-center justify-between border border-stone-800 bg-stone-950/50 px-3 py-2 font-serif text-xs text-stone-400 outline-none transition-all hover:bg-stone-900/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10"
+                aria-label="Ladder filter"
+              >
+                <Select.Value placeholder="All" />
+                <Select.Icon>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
+                  </svg>
+                </Select.Icon>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Content
+                  className="z-50 overflow-hidden border border-stone-800 bg-stone-950 shadow-2xl"
+                  position="popper"
+                  sideOffset={4}
+                >
+                  <Select.Viewport className="p-1">
+                    {[
+                      { value: "all", label: "All" },
+                      { value: "LADDER", label: "Ladder" },
+                      { value: "NON_LADDER", label: "Non-Ladder" },
+                    ].map((opt) => (
+                      <Select.Item
+                        key={opt.value}
+                        value={opt.value}
+                        className="flex cursor-pointer items-center px-3 py-2 font-serif text-xs text-stone-400 outline-none transition-colors hover:bg-stone-900 hover:text-amber-400 data-[state=checked]:text-amber-500"
+                      >
+                        <Select.ItemText>{opt.label}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.Viewport>
+                </Select.Content>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+
+          {/* ── Game Mode ── */}
+          <div className="w-full sm:w-40">
+            <LabelCap>Mode</LabelCap>
+            <Select.Root
+              value={activeFilters.gameMode ?? ""}
+              onValueChange={(v) => updateParam("gameMode", v)}
+            >
+              <Select.Trigger
+                className="flex w-full cursor-pointer items-center justify-between border border-stone-800 bg-stone-950/50 px-3 py-2 font-serif text-xs text-stone-400 outline-none transition-all hover:bg-stone-900/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/10"
+                aria-label="Game mode filter"
+              >
+                <Select.Value placeholder="All" />
+                <Select.Icon>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" />
+                  </svg>
+                </Select.Icon>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Content
+                  className="z-50 overflow-hidden border border-stone-800 bg-stone-950 shadow-2xl"
+                  position="popper"
+                  sideOffset={4}
+                >
+                  <Select.Viewport className="p-1">
+                    {[
+                      { value: "all", label: "All" },
+                      { value: "SOFTCORE", label: "Softcore" },
+                      { value: "HARDCORE", label: "Hardcore" },
+                    ].map((opt) => (
+                      <Select.Item
+                        key={opt.value}
+                        value={opt.value}
+                        className="flex cursor-pointer items-center px-3 py-2 font-serif text-xs text-stone-400 outline-none transition-colors hover:bg-stone-900 hover:text-amber-400 data-[state=checked]:text-amber-500"
+                      >
+                        <Select.ItemText>{opt.label}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.Viewport>
+                </Select.Content>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 
 function SigilCheckbox({
   id,
@@ -152,7 +287,7 @@ export default function CoreParameters({ activeFilters }: CoreParametersProps) {
 
   const resetAll = useCallback(() => {
     const coreKeys = [
-      "relicStatus", "craftingState", "levelMin", "levelMax",
+      "levelMin", "levelMax",
       "rarity", "sellerStanding", "ladder", "mode", "platform",
       "region", "version",
     ]
@@ -162,8 +297,7 @@ export default function CoreParameters({ activeFilters }: CoreParametersProps) {
     router.replace(`/trading?${params.toString()}`)
   }, [router, searchParams])
 
-  const activeRelicStatus: string[] = activeFilters.relicStatus ?? []
-  const activeCraftingState: string[] = activeFilters.craftingState ?? []
+
 
   return (
     <section
@@ -202,44 +336,7 @@ export default function CoreParameters({ activeFilters }: CoreParametersProps) {
       <div className="p-8 lg:p-10">
         <div className="grid grid-cols-1 gap-10 xl:grid-cols-12">
 
-          {/* ── Column 1: Relic Status + Crafting State ── */}
-          <div className="space-y-8 xl:col-span-4">
-            {/* Relic Status */}
-            <fieldset>
-              <LabelCap>Relic Status</LabelCap>
-              <div className="space-y-3">
-                {(Object.keys(RELIC_STATUS_LABELS) as RelicStatus[]).map((key) => (
-                  <SigilCheckbox
-                    key={key}
-                    id={`relic-${key}`}
-                    label={RELIC_STATUS_LABELS[key]}
-                    checked={activeRelicStatus.includes(key)}
-                    onCheckedChange={() =>
-                      toggleArrayParam("relicStatus", key, activeRelicStatus)
-                    }
-                  />
-                ))}
-              </div>
-            </fieldset>
-
-            {/* Crafting State */}
-            <fieldset>
-              <LabelCap>Crafting State</LabelCap>
-              <div className="space-y-3">
-                {(Object.keys(CRAFTING_STATE_LABELS) as CraftingState[]).map((key) => (
-                  <SigilCheckbox
-                    key={key}
-                    id={`craft-${key}`}
-                    label={CRAFTING_STATE_LABELS[key]}
-                    checked={activeCraftingState.includes(key)}
-                    onCheckedChange={() =>
-                      toggleArrayParam("craftingState", key, activeCraftingState)
-                    }
-                  />
-                ))}
-              </div>
-            </fieldset>
-          </div>
+          {/* Relic Status and Crafting State removed */}
 
           {/* ── Column 2: Soul Requirements + Rarity + Standing ── */}
           <div className="space-y-8 xl:col-span-4">

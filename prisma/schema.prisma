@@ -18,6 +18,60 @@ enum TransactionStatus {
   FAILED
 }
 
+//////////////////////////////////////////////////////
+// D2R ITEM ENUMS
+//////////////////////////////////////////////////////
+
+enum ItemRarity {
+  NORMAL
+  MAGIC
+  RARE
+  SET
+  UNIQUE
+  RUNEWORD
+  CRAFTED
+}
+
+enum ItemType {
+  HELMET
+  ARMOR
+  SHIELD
+  GLOVES
+  BOOTS
+  BELT
+  WEAPON
+  RING
+  AMULET
+  CHARM
+  JEWEL
+  RUNE
+  GEM
+  MISC
+}
+
+enum EquipmentSlot {
+  HEAD
+  BODY
+  HANDS
+  FEET
+  WAIST
+  WEAPON
+  OFFHAND
+  FINGER
+  NECK
+  INVENTORY
+}
+
+enum GameMode {
+  SOFTCORE
+  HARDCORE
+}
+
+enum LadderType {
+  LADDER
+  NON_LADDER
+}
+
 model Transaction {
   id String @id @default(cuid())
 
@@ -108,6 +162,13 @@ model Listing {
 
   status String @default("active")
 
+  // D2R item instance (optional – null for legacy/catalog listings)
+  itemInstanceId String?       @unique
+  instance       ItemInstance? @relation(fields: [itemInstanceId], references: [id])
+
+  // SPACE_DUST | RUNE | ITEM (null = legacy)
+  tradeCurrency String?
+
   offers        Offer[]
   transactions  Transaction[]
   itemPurchases ItemPurchase[]
@@ -117,6 +178,7 @@ model Listing {
   @@index([contentId])
   @@index([sellerId])
   @@index([status])
+  @@index([tradeCurrency])
   @@map("listing")
 }
 
@@ -328,4 +390,210 @@ model SpaceDustTransfer {
   @@index([senderId])
   @@index([recipientId])
   @@map("space_dust_transfer")
+}
+
+//////////////////////////////////////////////////////
+// D2R ITEM CATALOG
+//////////////////////////////////////////////////////
+
+// Every D2R base type (Shako, Phase Blade, etc.)
+model BaseItem {
+  id          String   @id @default(cuid())
+  name        String
+  type        ItemType
+  baseType    String // e.g. "Elite", "Normal"
+  ilvl        Int?
+  requiredLvl Int?
+
+  minDamage  Int?
+  maxDamage  Int?
+  defense    Int?
+  durability Int?
+  socketsMax Int?
+
+  stackable Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  uniques   UniqueItem[]
+  setItems  SetItem[]
+  instances ItemInstance[]
+
+  @@index([name])
+  @@index([type])
+  @@map("base_item")
+}
+
+// Unique item definitions (Shako, Windforce, etc.)
+model UniqueItem {
+  id         String   @id @default(cuid())
+  name       String
+  baseItemId String
+  level      Int?
+  stats      Json
+  lore       String?
+  createdAt  DateTime @default(now())
+
+  baseItem BaseItem @relation(fields: [baseItemId], references: [id])
+
+  @@index([name])
+  @@map("unique_item")
+}
+
+// Set definitions (Tal Rasha's, Immortal King, etc.)
+model ItemSet {
+  id        String   @id @default(cuid())
+  name      String
+  bonuses   Json
+  createdAt DateTime @default(now())
+
+  items SetItem[]
+
+  @@map("item_set")
+}
+
+model SetItem {
+  id         String   @id @default(cuid())
+  name       String
+  setId      String
+  baseItemId String
+  stats      Json
+  createdAt  DateTime @default(now())
+
+  set      ItemSet  @relation(fields: [setId], references: [id])
+  baseItem BaseItem @relation(fields: [baseItemId], references: [id])
+
+  @@map("set_item")
+}
+
+// Runeword definitions (Enigma, Faith, etc.)
+model Runeword {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  runes      String[] // ["Jah", "Ith", "Ber"]
+  bases      String[] // ["armor", "weapon"] — valid base type names
+  attributes String[] // raw text lines e.g. "+2 To All Skills"
+  stats      Json
+
+  level  Int? // required character level
+  ladder Boolean? // ladder-only flag
+  tier   Int? // power ranking
+  patch  Float? // version introduced (2.4, 2.6, etc.)
+
+  createdAt DateTime @default(now())
+
+  @@index([name])
+  @@map("runeword")
+}
+
+// Magic/Rare/Crafted affix pool
+model Affix {
+  id        String   @id @default(cuid())
+  name      String
+  type      String // "prefix" | "suffix"
+  tier      Int?
+  statKey   String // e.g. "enhanced_damage"
+  minValue  Int?
+  maxValue  Int?
+  levelReq  Int?
+  createdAt DateTime @default(now())
+
+  items ItemAffix[]
+
+  @@index([name])
+  @@index([statKey])
+  @@map("affix")
+}
+
+// A real player-owned item instance (goes on the marketplace)
+model ItemInstance {
+  id         String     @id @default(cuid())
+  baseItemId String
+  rarity     ItemRarity
+
+  name       String?
+  ilvl       Int?
+  sockets    Int?
+  ethereal   Boolean @default(false)
+  identified Boolean @default(true)
+
+  // Game mode + ladder classification
+  gameMode GameMode   @default(SOFTCORE)
+  ladder   LadderType @default(NON_LADDER)
+
+  stats   Json // rolled stat map e.g. { "enhanced_damage": 200 }
+  rawText String? // optional OCR paste from in-game tooltip
+
+  // Search / scoring fields — computed at write time
+  statKeys   String[] // extracted stat keys e.g. ["fcr", "life", "res"]
+  searchText String? // flat string for GIN search e.g. "shako +2 skills mf"
+  score      Float? // computed sortable value
+  isPerfect  Boolean? // true when all affix rolls are at max
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  baseItem BaseItem    @relation(fields: [baseItemId], references: [id])
+  affixes  ItemAffix[]
+  listing  Listing?
+
+  @@index([rarity])
+  @@index([ilvl])
+  @@index([baseItemId])
+  @@index([ethereal])
+  @@index([sockets])
+  @@index([gameMode])
+  @@index([ladder])
+  @@map("item_instance")
+}
+
+// ItemInstance ↔ Affix join with rolled value
+model ItemAffix {
+  id      String @id @default(cuid())
+  itemId  String
+  affixId String
+  value   Int?
+
+  item  ItemInstance @relation(fields: [itemId], references: [id])
+  affix Affix        @relation(fields: [affixId], references: [id])
+
+  @@index([itemId])
+  @@map("item_affix")
+}
+
+// Rune catalog (distinct from BaseItem type:RUNE; used for runeword lookups)
+model Rune {
+  id        String   @id @default(cuid())
+  name      String   @unique // "Jah"
+  tier      Int // 1–33 ranking
+  createdAt DateTime @default(now())
+
+  @@map("rune")
+}
+
+// Canonical stat registry for normalization + display
+model StatDefinition {
+  id       String  @id @default(cuid())
+  key      String  @unique // "faster_cast_rate"
+  display  String // "Faster Cast Rate"
+  category String? // "offense" | "defense" | "utility" | "misc"
+
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@map("stat_definition")
+}
+
+// Gems catalog
+model Gem {
+  id        String   @id @default(cuid())
+  name      String
+  gemType   String // "amethyst" | "diamond" | "emerald" | "ruby" | "sapphire" | "skull" | "topaz"
+  tier      String // "chipped" | "flawed" | "normal" | "flawless" | "perfect"
+  effect    Json
+  createdAt DateTime @default(now())
+
+  @@index([gemType])
+  @@map("gem")
 }
