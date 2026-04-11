@@ -83,9 +83,7 @@ export const auth = betterAuth({
       },
     }),
     admin(),
-    dash({
-      apiKey: env.BETTER_AUTH_API_KEY,
-    }),
+    ...(env.BETTER_AUTH_API_KEY ? [dash({ apiKey: env.BETTER_AUTH_API_KEY })] : []),
     nextCookies(),
   ]
 });
