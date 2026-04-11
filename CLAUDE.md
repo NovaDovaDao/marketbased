@@ -24,27 +24,28 @@ Run a single Vitest test file: `pnpm test path/to/file.test.ts`
 
 ### Key directories
 - `app/api/` — API routes (listings CRUD, payment recording, trade rooms)
-- `app/utils/auth.ts` — Server-side `getSession()` helper — calls Neon Auth API, syncs app user on first sign-in
-- `app/utils/auth-client.ts` — Client-side Better Auth SDK pointed at Neon Auth URL
+- `app/utils/auth.ts` — Self-hosted Better Auth instance (Prisma adapter). Exports `auth` and `Session` type.
+- `app/utils/auth-client.ts` — Client-side Better Auth SDK. Use `authClient.useSession()`, `authClient.signIn.*`, `authClient.signOut()`.
 - `app/lib/prisma.ts` — Prisma client singleton
 - `components/` — UI components, one folder per component with co-located tests/stories
 - `items/` — Static JSON catalogs for runes and trading items
-- `prisma/schema.prisma` — PostgreSQL schema (app tables only; auth tables live in `neon_auth` schema)
+- `prisma/schema.prisma` — PostgreSQL schema. Includes auth tables (`User`, `Session`, `Account`, `Verification`) and app tables. All in the `public` schema.
 - `env.mjs` — T3 Env + Zod environment variable validation (all env vars declared here)
 
 ### Auth
-**Neon Auth** is the auth provider — a hosted Better Auth service provisioned in the Neon database. Auth data (users, sessions, accounts, verifications) lives in the `neon_auth` schema; app-specific user data lives in the public `user` table.
+**Self-hosted Better Auth** runs inside the Next.js app at `/api/auth/*`, backed by the Neon Postgres database via the Prisma adapter.
 
-- **Server-side**: `import { getSession } from "@/app/utils/auth"` — calls `NEON_AUTH_URL/get-session`, creates the app `user` row on first sign-in (username auto-generated).
-- **Client-side**: `import { authClient } from "@/app/utils/auth-client"` — Better Auth client SDK pointed at the Neon Auth URL. Use `authClient.useSession()` for reactive session state, `authClient.signIn.*` / `authClient.signOut()` for auth actions.
-- **Chat service**: queries `neon_auth.session` (same schema as Better Auth) to validate WebSocket connections.
-- OAuth providers (Discord, Google, GitHub) and email OTP are configured in the **Neon Auth console** — not in code.
+- **Server-side**: `import { auth } from "@/app/utils/auth"` — call `auth.api.getSession({ headers: await headers() })` in Server Components/Actions.
+- **Client-side**: `import { authClient } from "@/app/utils/auth-client"` — points at `NEXT_PUBLIC_BETTER_AUTH_URL` (same origin in production). Use `authClient.useSession()` for reactive state, `authClient.signIn.*` / `authClient.signOut()` for auth actions.
+- **Auth tables** (`session`, `account`, `verification`) are managed by Better Auth in the `public` schema and included in `prisma/schema.prisma`. Run `prisma db push` after schema changes.
+- OAuth providers (Discord) and email OTP are configured in `app/utils/auth.ts`.
+- **Wallet nonces** (SIWE) are stored in the dedicated `WalletNonce` / `wallet_nonce` table — separate from Better Auth's `verification` table.
 
 ### Payments
 `app/api/record-payment/route.ts` verifies Base chain transactions on-chain via Viem before persisting them. It checks that the recipient matches `MERCHANT_ADDRESS` and prevents duplicate submissions using a unique constraint on `txHash`.
 
 ### Database
-Prisma with PostgreSQL (Neon). App models: `User`, `Listing`, `Offer`, `Transaction`, `WalletAddress`, `TradeRoom`, `Message`, `Purchase`, `ItemPurchase`, `SpaceDustTransfer`, and D2R item catalog models. Auth tables (`session`, `account`, etc.) are managed by Neon Auth in the `neon_auth` schema. `price` and `offerData` fields are stored as JSON to support both crypto amounts and in-game currency (runes).
+Prisma with PostgreSQL (Neon). Auth models: `User`, `Session`, `Account`, `Verification`. App models: `Listing`, `Offer`, `Transaction`, `WalletAddress`, `WalletNonce`, `TradeRoom`, `Message`, `Purchase`, `ItemPurchase`, `SpaceDustTransfer`, and D2R item catalog models. All in the `public` schema. `price` and `offerData` fields are stored as JSON to support both crypto amounts and in-game currency (runes).
 
 ### Data flow for listings
 Static item catalogs (`items/runes.json`, `items/trading-listings.json`) seed the UI. Authenticated sellers create `Listing` records via `POST /api/listings/update`.
@@ -58,4 +59,4 @@ Static item catalogs (`items/runes.json`, `items/trading-listings.json`) seed th
 - Package manager is **pnpm only** (Node ≥ 20, pnpm ≥ 10, corepack enabled)
 
 ## Environment variables
-All declared and validated in `env.mjs`. Required server vars: `DATABASE_URL` (Neon connection string), `NEON_AUTH_URL` (from Neon Auth provisioning). See `.env.example` for the full list.
+All declared and validated in `env.mjs`. Required server vars: `DATABASE_URL` (Neon connection string), `BETTER_AUTH_SECRET` (min 32 chars), `BETTER_AUTH_URL` (app base URL, e.g. `http://localhost:3000`). Required client var: `NEXT_PUBLIC_BETTER_AUTH_URL` (same value as `BETTER_AUTH_URL`). See `.env.example` for the full list.

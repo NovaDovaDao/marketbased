@@ -39,6 +39,7 @@ export const env = createEnv({
     DISCORD_NOTIFICATION_CHANNEL_ID: z.string().min(1).optional(),
   },
   client: {
+    NEXT_PUBLIC_BETTER_AUTH_URL: z.string().url().optional(),
     NEXT_PUBLIC_MERCHANT_ADDRESS: z
       .string()
       .regex(ethAddressRegex, "Must be a valid Ethereum address")
@@ -76,6 +77,7 @@ export const env = createEnv({
     CRON_SECRET: process.env.CRON_SECRET,
     DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
     DISCORD_NOTIFICATION_CHANNEL_ID: process.env.DISCORD_NOTIFICATION_CHANNEL_ID,
+    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
     NEXT_PUBLIC_MERCHANT_ADDRESS: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
     NEXT_PUBLIC_SOCKET_SERVER_URL: process.env.NEXT_PUBLIC_SOCKET_SERVER_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,

@@ -338,6 +338,17 @@ model Verification {
   @@map("verification")
 }
 
+model WalletNonce {
+  id        String   @id
+  userId    String
+  value     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("wallet_nonce")
+}
+
 model Purchase {
   id          String   @id @default(cuid())
   userId      String

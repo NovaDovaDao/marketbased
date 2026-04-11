@@ -28,9 +28,8 @@ export async function POST(req: Request) {
   }
 
   // Retrieve and validate the nonce stored for this user
-  const identifier = `wallet-nonce:${session.user.id}`
-  const verification = await prisma.verification.findFirst({
-    where: { identifier, expiresAt: { gt: new Date() } },
+  const verification = await prisma.walletNonce.findFirst({
+    where: { userId: session.user.id, expiresAt: { gt: new Date() } },
   })
 
   if (!verification) {
@@ -50,7 +49,7 @@ export async function POST(req: Request) {
   }
 
   // Consume the nonce so it can't be replayed
-  await prisma.verification.delete({ where: { id: verification.id } })
+  await prisma.walletNonce.delete({ where: { id: verification.id } })
 
   // Upsert the wallet address linked to this user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

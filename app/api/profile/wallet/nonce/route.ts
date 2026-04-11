@@ -14,18 +14,16 @@ export async function GET() {
   }
 
   const nonce = generateRandomString(32, "a-z", "A-Z", "0-9")
-  const identifier = `wallet-nonce:${session.user.id}`
+  const userId = session.user.id
 
   // One active nonce per user — delete any existing then create fresh
-  await prisma.verification.deleteMany({ where: { identifier } })
-  await prisma.verification.create({
+  await prisma.walletNonce.deleteMany({ where: { userId } })
+  await prisma.walletNonce.create({
     data: {
       id: generateRandomString(16, "a-z", "A-Z", "0-9"),
-      identifier,
+      userId,
       value: nonce,
       expiresAt: new Date(Date.now() + NONCE_TTL_MS),
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   })
 

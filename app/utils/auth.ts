@@ -4,11 +4,13 @@ import { dash } from "@better-auth/infra";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { generateRandomString } from "better-auth/crypto";
+import { nextCookies } from "better-auth/next-js";
 import { admin, emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -84,5 +86,8 @@ export const auth = betterAuth({
     dash({
       apiKey: env.BETTER_AUTH_API_KEY,
     }),
+    nextCookies(),
   ]
 });
+
+export type Session = typeof auth.$Infer.Session;
