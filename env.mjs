@@ -51,6 +51,10 @@ export const env = createEnv({
       .regex(ethAddressRegex, "Must be a valid Ethereum address")
       .optional(),
     NEXT_PUBLIC_PAYPAL_CLIENT_ID: z.string().min(1).optional(),
+    NEXT_PUBLIC_BASE_TESTNET: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((v) => v === "true"),
   },
   runtimeEnv: {
     ANALYZE: process.env.ANALYZE,
@@ -83,5 +87,6 @@ export const env = createEnv({
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_RECEIVING_ADDRESS: process.env.NEXT_PUBLIC_RECEIVING_ADDRESS,
     NEXT_PUBLIC_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+    NEXT_PUBLIC_BASE_TESTNET: process.env.NEXT_PUBLIC_BASE_TESTNET,
   },
 })

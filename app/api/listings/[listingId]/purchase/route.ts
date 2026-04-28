@@ -1,6 +1,7 @@
 import { prisma } from "@/app/lib/prisma"
 import { auth } from "@/app/utils/auth"
 import { env } from "@/env.mjs"
+import { notifyAdminChannelPurchase } from "@/services/discord-notifications"
 import { type NextRequest } from "next/server"
 
 /**
@@ -30,6 +31,7 @@ export async function POST(
       sellerId: true,
       status: true,
       spaceDustPrice: true,
+      seller: { select: { name: true, email: true } },
     },
   })
 
@@ -134,6 +136,16 @@ export async function POST(
       }),
     }).catch(() => undefined)
   }
+
+  const buyerName = session.user.name ?? session.user.email ?? "Unknown user"
+  const sellerName = listing.seller?.name ?? listing.seller?.email ?? null
+  void notifyAdminChannelPurchase({
+    buyerName,
+    itemName,
+    price,
+    currency: "SD",
+    sellerName,
+  })
 
   return Response.json({ tradeRoomId })
 }

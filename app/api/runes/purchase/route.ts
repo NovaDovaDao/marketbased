@@ -1,7 +1,7 @@
 import { prisma } from "@/app/lib/prisma"
 import { auth } from "@/app/utils/auth"
-import { env } from "@/env.mjs"
 import runesData from "@/items/runes.json"
+import { notifyAdminChannelPurchase } from "@/services/discord-notifications"
 import { type NextRequest } from "next/server"
 import { z } from "zod"
 
@@ -14,24 +14,6 @@ const schema = z.object({
 const runesMap = new Map(
   (runesData as Array<{ id: number; name: string }>).map((r) => [r.id, r.name]),
 )
-
-async function notifyDiscord(message: string) {
-  const token = env.DISCORD_BOT_TOKEN
-  const channelId = env.DISCORD_NOTIFICATION_CHANNEL_ID
-  if (!token || !channelId) return
-  try {
-    await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bot ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content: message }),
-    })
-  } catch {
-    // non-critical — silently swallow
-  }
-}
 
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers })
@@ -102,11 +84,14 @@ export async function POST(req: NextRequest) {
     throw err
   }
 
-  // Fire-and-forget Discord notification
   const displayName = session.user.name ?? session.user.email ?? "Unknown user"
-  void notifyDiscord(
-    `🛒 **${displayName}** just bought **${runeName} Rune** for 1,000 SD — new balance: ${newBalance.toLocaleString()} SD`,
-  )
+  void notifyAdminChannelPurchase({
+    buyerName: displayName,
+    itemName: `${runeName} Rune`,
+    price: RUNE_PRICE_SD,
+    currency: "SD",
+    newBuyerBalance: newBalance,
+  })
 
   return Response.json({ success: true, newBalance })
 }

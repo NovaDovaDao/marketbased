@@ -26,7 +26,8 @@
     "coupling-graph": "npx madge --extensions js,jsx,ts,tsx,css,md,mdx ./ --exclude '.next|tailwind.config.js|reset.d.ts|prettier.config.js|postcss.config.js|playwright.config.ts|next.config.js|next-env.d.ts|instrumentation.ts|e2e/|README.md|.storybook/|.eslintrc.js' --image graph.svg"
   },
   "dependencies": {
-    "@better-auth/infra": "^0.1.13",
+    "@base-org/account": "^2.5.4",
+    "@better-auth/infra": "^0.2.5",
     "@coinbase/wallet-sdk": "^4.3.7",
     "@next/bundle-analyzer": "^16.2.1",
     "@paypal/paypal-server-sdk": "^2.3.0",
@@ -82,7 +83,7 @@
     "@next/eslint-plugin-next": "16.2.1",
     "@opentelemetry/api": "1.9.1",
     "@opentelemetry/resources": "2.6.1",
-    "@opentelemetry/sdk-node": "0.214.0",
+    "@opentelemetry/sdk-node": "0.215.0",
     "@opentelemetry/sdk-trace-node": "2.6.1",
     "@opentelemetry/semantic-conventions": "1.40.0",
     "@playwright/test": "^1.58.2",
@@ -124,7 +125,7 @@
     "postcss-import": "^16.1.1",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "prisma": "^7.6.0",
     "semantic-release": "^25.0.3",
     "storybook": "^10.3.3",

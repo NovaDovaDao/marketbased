@@ -5,8 +5,10 @@ import { type NextRequest } from "next/server"
 
 /**
  * Called by Vercel Cron once per day at midnight UTC.
- * Finds all pending Base purchases in the last 2 hours and checks for
- * matching USDC Transfer events on-chain. Atomically credits spaceDust on match.
+ * Safety net for the synchronous Base Pay confirm flow: finds Base purchases
+ * still pending in the last 72 hours and checks for a matching USDC Transfer
+ * event on-chain. Idempotent via Purchase.providerRef unique constraint, so
+ * sync-then-async double runs are no-ops.
  */
 export async function GET(req: NextRequest) {
   // Validate cron secret set by Vercel
@@ -18,13 +20,13 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000)
+  const lookbackStart = new Date(Date.now() - 72 * 60 * 60 * 1000)
 
   const pendingPurchases = await prisma.purchase.findMany({
     where: {
       provider: "base",
       status: "pending",
-      createdAt: { gte: twoHoursAgo },
+      createdAt: { gte: lookbackStart },
     },
   })
 
